@@ -237,7 +237,7 @@
             setSealState('thinking');
             toggleInputDisabled(true);
 
-            const apiKey = ""; // Dejar vacío
+            const apiKey = "AIzaSyC0T0NICCoW38oxRra5Sif770uk9P5-zZo"; // Dejar vacío
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             
             const quizPrompt = `Eres un asistente experto en crear cuestionarios educativos. Por favor, genera un cuestionario interactivo sobre el siguiente tema: "${topic}". El cuestionario debe tener un título y ${NUM_QUIZ_QUESTIONS} preguntas. Cada pregunta debe ser de opción múltiple con exactamente 4 opciones (A, B, C, D), una sola respuesta correcta (indicada por su índice 0-3), y una breve explicación para la respuesta correcta. Devuelve la respuesta estrictamente en formato JSON utilizando el esquema proporcionado. No incluyas texto explicativo, comentarios, ni markdown antes o después del objeto JSON. Asegúrate que las opciones no contengan solo una letra como 'A.' sino el texto completo de la opción.`;
@@ -421,7 +421,7 @@
             showTypingIndicator();
 
             try {
-                const apiKey = ""; 
+                const apiKey = "AIzaSyC0T0NICCoW38oxRra5Sif770uk9P5-zZo"; 
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                 
                 const payload = {
