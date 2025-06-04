@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Foca Amigable y Creador de Cuestionarios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        #chat-messages {
+            scrollbar-width: thin;
+            scrollbar-color: #9CA3AF #E5E7EB; /* gray-400 gray-200 */
+        }
+        #chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+        #chat-messages::-webkit-scrollbar-track {
+            background: #E5E7EB; /* gray-200 */
+            border-radius: 10px;
+        }
+        #chat-messages::-webkit-scrollbar-thumb {
+            background-color: #9CA3AF; /* gray-400 */
+            border-radius: 10px;
+            border: 2px solid #E5E7EB; /* gray-200 */
+        }
+        .user-message {
+            background-color: #2563EB; /* blue-600 */
+            color: white;
+            align-self: flex-end;
+            max-width: 80%;
+        }
+        .bot-message {
+            background-color: #F3F4F6; /* gray-100 */
+            color: #1F2937; /* gray-800 */
+            align-self: flex-start;
+            max-width: 80%;
+        }
+        .message {
+            padding: 0.6rem 1rem; /* Adjusted padding */
+            border-radius: 0.75rem; /* 12px */
+            margin-bottom: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+        .quiz-question-message {
+            background-color: #E0E7FF; /* indigo-100 */
+            color: #3730A3; /* indigo-800 */
+            align-self: flex-start;
+            width: 100%; /* Full width for questions */
+            max-width: 100%;
+        }
+        .quiz-option-button {
+            transition: all 0.2s ease-in-out;
+        }
+        .quiz-option-button:hover {
+            transform: translateY(-2px);
+        }
+        .seal-container {
+            transition: transform 0.3s ease-in-out;
+        }
+        /* Seal animations (similar to before, slightly simplified for brevity in this diff) */
+        @keyframes idleBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+        #seal.idle .seal-body { animation: idleBob 3s ease-in-out infinite; }
+        #seal.idle .seal-eyelid { animation: blink 4s infinite; }
+        @keyframes blink { 0%, 90%, 100% { transform: scaleY(0.1); opacity: 1;} 95% { transform: scaleY(1); opacity: 1;} }
+        #seal.thinking { transform: rotate(-5deg) translateX(-3px); }
+        #seal.thinking .seal-mouth { d: path("M 95 128 Q 100 130 105 128"); } /* Adjusted mouth position */
+        #seal.talking .seal-mouth { animation: talkMouth 0.5s infinite; }
+        @keyframes talkMouth { 0%, 100% { d: path("M 90 125 Q 100 130 110 125"); } 50% { d: path("M 90 125 Q 100 135 110 125"); } } /* Adjusted */
+        #seal.talking { animation: talkNod 0.5s infinite alternate; }
+        @keyframes talkNod { from { transform: translateY(0) rotate(1deg); } to { transform: translateY(-1px) rotate(-1deg); } }
+        #seal.error { transform: rotate(5deg) translateY(3px); }
+        #seal.error .seal-eye { fill: #E53E3E; }
+        #seal.error .seal-mouth { d: path("M 90 130 Q 100 120 110 130"); } /* Adjusted */
+
+        .loader {
+            border: 3px solid #f3f3f3; border-top: 3px solid #2563EB;
+            border-radius: 50%; width: 20px; height: 20px;
+            animation: spin 1s linear infinite; margin-left: 0.5rem;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .typing-indicator { display: flex; align-items: center; padding: 0.6rem 1rem;}
+        .typing-indicator span { font-style: italic; color: #4B5563; } /* gray-600 */
+    </style>
+</head>
+<body class="flex flex-col h-screen bg-gradient-to-br from-sky-100 via-indigo-100 to-purple-200 p-2 sm:p-3">
+
+    <!-- Contenedor de la Foca -->
+    <div class="seal-container flex-shrink-0 mx-auto mb-2 w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36">
+        <svg id="seal" viewBox="0 0 200 200" class="idle w-full h-full">
+            <path class="seal-body" d="M30,150 Q50,180 100,180 Q150,180 170,150 Q180,100 100,60 Q20,100 30,150 Z" fill="#A0AEC0"/>
+            <circle class="seal-eye" cx="80" cy="100" r="7" fill="#2D3748"/>
+            <circle class="seal-eye" cx="120" cy="100" r="7" fill="#2D3748"/>
+            <ellipse class="seal-eyelid" cx="80" cy="100" rx="7" ry="1" fill="#A0AEC0" style="transform-origin: 80px 100px;"/>
+            <ellipse class="seal-eyelid" cx="120" cy="100" rx="7" ry="1" fill="#A0AEC0" style="transform-origin: 120px 100px;"/>
+            <ellipse cx="100" cy="115" rx="9" ry="5" fill="#4A5568"/>
+            <path class="seal-mouth" d="M 90 125 Q 100 130 110 125" stroke="#4A5568" stroke-width="2.5" fill="transparent"/>
+            <path d="M40,140 Q20,160 40,170 Q50,165 40,140 Z" fill="#718096" transform="rotate(-15 40 155) scale(0.9)"/>
+            <path d="M160,140 Q180,160 160,170 Q150,165 160,140 Z" fill="#718096" transform="rotate(15 160 155) scale(0.9)"/>
+        </svg>
+    </div>
+
+    <!-- Contenedor del Chat -->
+    <div class="w-full max-w-lg mx-auto bg-white shadow-2xl rounded-xl flex flex-col flex-grow overflow-hidden">
+        <header class="bg-blue-600 p-3 text-white text-center rounded-t-xl flex-shrink-0">
+            <h1 class="text-lg sm:text-xl font-semibold">Foca Asistente</h1>
+        </header>
+
+        <div id="chat-messages" class="flex-grow p-3 sm:p-4 space-y-2 sm:space-y-3 overflow-y-auto text-sm md:text-base">
+            <div class="bot-message message">
+                ¡Hola! Soy Foca. Puedo chatear o crear cuestionarios. ¿Qué te gustaría hacer?
+            </div>
+        </div>
+
+        <div id="typing-indicator-container" class="p-2" style="display: none;">
+             <div class="bot-message message typing-indicator text-xs sm:text-sm">
+                <span>Foca está escribiendo</span>
+                <div class="loader"></div>
+            </div>
+        </div>
+        
+        <div id="quiz-interaction-area" class="p-3 border-t border-gray-200">
+            <!-- Las opciones del cuestionario aparecerán aquí -->
+        </div>
+
+        <div class="p-3 border-t border-gray-200 bg-gray-50 rounded-b-xl flex-shrink-0">
+            <div class="flex items-center justify-center mb-2 space-x-2">
+                <span class="text-xs sm:text-sm font-medium text-gray-700">Modo Chat</span>
+                <label for="quizModeToggle" class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="quizModeToggle" class="sr-only peer">
+                    <div class="w-9 h-5 sm:w-11 sm:h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                </label>
+                <span class="text-xs sm:text-sm font-medium text-gray-700">Modo Cuestionario</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <textarea id="userInput" class="flex-grow p-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" rows="1" placeholder="Escribe tu mensaje..." autofocus></textarea>
+                <button id="sendButton" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 sm:px-5 rounded-lg shadow-md transition duration-150 ease-in-out">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const chatMessages = document.getElementById('chat-messages');
+        const sealElement = document.getElementById('seal');
+        const typingIndicatorContainer = document.getElementById('typing-indicator-container');
+        const quizModeToggle = document.getElementById('quizModeToggle');
+        const quizInteractionArea = document.getElementById('quiz-interaction-area');
+        const userInputPlaceholderDefault = "Escribe tu mensaje...";
+        const userInputPlaceholderQuiz = "Tema para el cuestionario (ej: El sistema solar)";
+
+        let chatHistory = [{ role: "model", parts: [{ text: "¡Hola! Soy Foca. Puedo chatear o crear cuestionarios. ¿Qué te gustaría hacer?" }] }];
+        let isQuizModeActive = false;
+        let currentQuiz = null;
+        let currentQuestionIndex = 0;
+        let userScore = 0;
+        const NUM_QUIZ_QUESTIONS = 3; // Number of questions for the quiz
+
+        // --- Funciones de la Foca ---
+        function setSealState(state) {
+            sealElement.className.baseVal = '';
+            sealElement.classList.add(state);
+        }
+
+        // --- Funciones del Chat ---
+        function addMessage(text, sender, type = 'normal') { // type can be 'normal' or 'quiz-question'
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            if (sender === 'user') {
+                messageDiv.classList.add('user-message');
+            } else {
+                messageDiv.classList.add('bot-message');
+                if (type === 'quiz-question') {
+                    messageDiv.classList.remove('bot-message'); // remove default bot style
+                    messageDiv.classList.add('quiz-question-message'); // add specific quiz question style
+                }
+            }
+            
+            // Sanitize text (simple version, for complex HTML use a library)
+            const tempDiv = document.createElement('div');
+            tempDiv.textContent = text;
+            messageDiv.innerHTML = tempDiv.innerHTML.replace(/\n/g, '<br>'); // Preserve line breaks
+
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            typingIndicatorContainer.style.display = 'flex';
+            scrollToBottom();
+        }
+
+        function hideTypingIndicator() {
+            typingIndicatorContainer.style.display = 'none';
+        }
+
+        function toggleInputDisabled(disabled) {
+            userInput.disabled = disabled;
+            sendButton.disabled = disabled;
+            quizModeToggle.disabled = disabled;
+        }
+
+        // --- Lógica del Cuestionario ---
+        quizModeToggle.addEventListener('change', () => {
+            isQuizModeActive = quizModeToggle.checked;
+            userInput.placeholder = isQuizModeActive ? userInputPlaceholderQuiz : userInputPlaceholderDefault;
+            userInput.value = ''; // Clear input when toggling mode
+            if (!isQuizModeActive && currentQuiz) { // If toggled off during a quiz
+                addMessage("Modo cuestionario desactivado.", "bot");
+                resetQuizState();
+            }
+        });
+
+        function resetQuizState() {
+            currentQuiz = null;
+            currentQuestionIndex = 0;
+            userScore = 0;
+            quizInteractionArea.innerHTML = '';
+            toggleInputDisabled(false);
+            userInput.placeholder = isQuizModeActive ? userInputPlaceholderQuiz : userInputPlaceholderDefault;
+        }
+
+        async function handleQuizRequest(topic) {
+            addMessage(`Ok, generando un cuestionario sobre: "${topic}"...`, 'bot');
+            showTypingIndicator();
+            setSealState('thinking');
+            toggleInputDisabled(true);
+
+            const apiKey = ""; // Dejar vacío
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            
+            const quizPrompt = `Eres un asistente experto en crear cuestionarios educativos. Por favor, genera un cuestionario interactivo sobre el siguiente tema: "${topic}". El cuestionario debe tener un título y ${NUM_QUIZ_QUESTIONS} preguntas. Cada pregunta debe ser de opción múltiple con exactamente 4 opciones (A, B, C, D), una sola respuesta correcta (indicada por su índice 0-3), y una breve explicación para la respuesta correcta. Devuelve la respuesta estrictamente en formato JSON utilizando el esquema proporcionado. No incluyas texto explicativo, comentarios, ni markdown antes o después del objeto JSON. Asegúrate que las opciones no contengan solo una letra como 'A.' sino el texto completo de la opción.`;
+
+            const schema = {
+                type: "OBJECT",
+                properties: {
+                    quizTitle: { type: "STRING", description: "Título del cuestionario." },
+                    questions: {
+                        type: "ARRAY",
+                        description: "Lista de preguntas para el cuestionario.",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                id: { type: "STRING", description: "Identificador único para la pregunta (ej: q1, q2)." },
+                                questionText: { type: "STRING", description: "El texto de la pregunta." },
+                                options: {
+                                    type: "ARRAY",
+                                    description: "Lista de 4 opciones de respuesta.",
+                                    items: { type: "STRING" }
+                                },
+                                correctOptionIndex: { type: "NUMBER", description: "Índice (0-3) de la opción correcta." },
+                                explanation: {type: "STRING", description: "Breve explicación de la respuesta correcta."}
+                            },
+                            required: ["id", "questionText", "options", "correctOptionIndex", "explanation"]
+                        }
+                    }
+                },
+                required: ["quizTitle", "questions"]
+            };
+
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: quizPrompt }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: schema
+                }
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                hideTypingIndicator();
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`API Error ${response.status}: ${errorData?.error?.message || response.statusText}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts[0].text) {
+                    const jsonText = result.candidates[0].content.parts[0].text;
+                    try {
+                        currentQuiz = JSON.parse(jsonText);
+                        if (currentQuiz.questions && currentQuiz.questions.length > 0) {
+                            addMessage(`¡Cuestionario generado! Título: "${currentQuiz.quizTitle}"`, 'bot');
+                            setSealState('talking');
+                            setTimeout(() => setSealState('idle'), 2000);
+                            startQuiz();
+                        } else {
+                            throw new Error("El formato del cuestionario no es válido o no contiene preguntas.");
+                        }
+                    } catch (parseError) {
+                        console.error("Error al parsear JSON del cuestionario:", parseError, "\nJSON recibido:", jsonText);
+                        addMessage("Foca tuvo problemas para entender el formato del cuestionario. Intenta con otro tema.", 'bot');
+                        setSealState('error');
+                        resetQuizState();
+                    }
+                } else {
+                     throw new Error("No se recibió contenido válido de la API para el cuestionario.");
+                }
+            } catch (error) {
+                console.error('Error al generar cuestionario:', error);
+                addMessage(`Lo siento, Foca no pudo crear el cuestionario: ${error.message}`, 'bot');
+                setSealState('error');
+                hideTypingIndicator();
+                resetQuizState();
+            }
+        }
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            userScore = 0;
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            quizInteractionArea.innerHTML = ''; // Limpiar opciones anteriores
+            if (!currentQuiz || currentQuestionIndex >= currentQuiz.questions.length) {
+                showQuizResults();
+                return;
+            }
+
+            const question = currentQuiz.questions[currentQuestionIndex];
+            addMessage(`Pregunta ${currentQuestionIndex + 1}/${currentQuiz.questions.length}:\n${question.questionText}`, 'bot', 'quiz-question');
+            
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'quiz-option-button bg-sky-500 hover:bg-sky-600 text-white font-medium py-2 px-3 rounded-lg text-sm w-full text-left';
+                button.textContent = `${String.fromCharCode(65 + index)}. ${option}`; // A. Option, B. Option...
+                button.onclick = () => handleAnswerSelection(index);
+                optionsContainer.appendChild(button);
+            });
+            quizInteractionArea.appendChild(optionsContainer);
+            scrollToBottom();
+        }
+
+        function handleAnswerSelection(selectedIndex) {
+            const question = currentQuiz.questions[currentQuestionIndex];
+            const correct = selectedIndex === question.correctOptionIndex;
+            let feedback = "";
+
+            if (correct) {
+                userScore++;
+                feedback = `¡Correcto! ${question.explanation || ''}`;
+                setSealState('talking'); // Foca feliz
+            } else {
+                const correctAnswerLetter = String.fromCharCode(65 + question.correctOptionIndex);
+                feedback = `Incorrecto. La respuesta correcta era ${correctAnswerLetter}. ${question.options[question.correctOptionIndex]}. \nExplicación: ${question.explanation || ''}`;
+                setSealState('idle'); // Foca neutral o un poco triste
+            }
+            addMessage(feedback, 'bot');
+            
+            currentQuestionIndex++;
+            setTimeout(() => {
+                 if (currentQuestionIndex < currentQuiz.questions.length) {
+                    displayQuestion();
+                } else {
+                    showQuizResults();
+                }
+                if(correct) setTimeout(() => setSealState('idle'), 1500); // Volver a idle
+            }, 500); // Pequeña pausa antes de la siguiente pregunta o resultados
+             quizInteractionArea.innerHTML = '<p class="text-sm text-gray-500 text-center py-2">Seleccionando siguiente pregunta...</p>'; // Feedback visual
+        }
+
+        function showQuizResults() {
+            addMessage(`¡Cuestionario completado!\nTu puntuación: ${userScore} de ${currentQuiz.questions.length}.`, 'bot');
+            if (userScore === currentQuiz.questions.length) {
+                addMessage("¡Felicidades, todas correctas! Eres genial.", "bot");
+                setSealState('talking'); // Foca muy feliz
+            } else if (userScore >= currentQuiz.questions.length / 2) {
+                addMessage("¡Buen trabajo! Sigue aprendiendo.", "bot");
+                setSealState('idle');
+            } else {
+                addMessage("No te preocupes, ¡la práctica hace al maestro!", "bot");
+                setSealState('idle');
+            }
+            resetQuizState();
+            quizModeToggle.checked = false; // Desactivar modo cuestionario
+            isQuizModeActive = false;
+            userInput.placeholder = userInputPlaceholderDefault;
+        }
+
+
+        // --- Lógica Principal de Envío ---
+        async function sendMessage() {
+            const messageText = userInput.value.trim();
+            if (messageText === '') return;
+
+            addMessage(messageText, 'user');
+            userInput.value = '';
+            userInput.style.height = 'auto'; // Reset height for textarea
+
+            if (isQuizModeActive) {
+                chatHistory.push({ role: "user", parts: [{ text: `Solicitud de cuestionario sobre: ${messageText}` }] });
+                handleQuizRequest(messageText);
+                return;
+            }
+            
+            // Modo Chat Normal
+            chatHistory.push({ role: "user", parts: [{ text: messageText }] });
+            toggleInputDisabled(true);
+            setSealState('thinking');
+            showTypingIndicator();
+
+            try {
+                const apiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                const payload = {
+                    contents: chatHistory,
+                    // generationConfig: { temperature: 0.7, topK: 1, topP: 1, maxOutputTokens: 2048 },
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                hideTypingIndicator();
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    let errMsg = `Error ${response.status}: ${response.statusText}`;
+                    if (errorData?.error?.message) errMsg = errorData.error.message;
+                    if (errMsg.includes("API key not valid")) errMsg = "Error: Clave API no válida.";
+                    throw new Error(errMsg);
+                }
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates[0].content?.parts?.[0]?.text) {
+                    const botResponse = result.candidates[0].content.parts[0].text;
+                    addMessage(botResponse, 'bot');
+                    chatHistory.push({ role: "model", parts: [{ text: botResponse }] });
+                    setSealState('talking');
+                    setTimeout(() => setSealState('idle'), 3000);
+                } else if (result.promptFeedback?.blockReason) {
+                    addMessage("Lo siento, no puedo responder a eso debido a políticas de contenido.", 'bot');
+                     chatHistory.push({ role: "model", parts: [{ text: "Respuesta bloqueada por seguridad." }] });
+                    setSealState('idle');
+                } else {
+                    throw new Error("No se obtuvo una respuesta clara de Foca.");
+                }
+            } catch (error) {
+                console.error('Error al enviar mensaje:', error);
+                addMessage(`Oops, Foca tuvo un problema: ${error.message}`, 'bot');
+                chatHistory.push({ role: "model", parts: [{ text: `Error: ${error.message}` }] });
+                setSealState('error');
+                hideTypingIndicator();
+            } finally {
+                toggleInputDisabled(false);
+                userInput.focus();
+                if (sealElement.classList.contains('thinking') || sealElement.classList.contains('error')) {
+                    setTimeout(() => setSealState('idle'), 1500);
+                }
+            }
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Estado inicial y placeholder
+        setSealState('idle');
+        userInput.placeholder = userInputPlaceholderDefault;
+
+        // Ajustar altura del textarea dinámicamente
+        userInput.addEventListener('input', () => {
+            userInput.style.height = 'auto';
+            let newHeight = userInput.scrollHeight;
+            const maxHeight = 100; // Aprox 4-5 líneas
+            if (newHeight > maxHeight) {
+                newHeight = maxHeight;
+                userInput.style.overflowY = 'auto';
+            } else {
+                userInput.style.overflowY = 'hidden';
+            }
+            userInput.style.height = newHeight + 'px';
+        });
+        userInput.dispatchEvent(new Event('input')); // Ajuste inicial
+        
+        // Saludo inicial
+        scrollToBottom(); // Para asegurar que el mensaje inicial sea visible si el chat es corto
+
+    </script>
+</body>
+</html>
