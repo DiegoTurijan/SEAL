@@ -5,120 +5,466 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot Foca Amigable y Creador de Cuestionarios</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+        
         body {
             font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #e0e7ff 50%, #f0f9ff 100%);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
         }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
         #chat-messages {
             scrollbar-width: thin;
-            scrollbar-color: #9CA3AF #E5E7EB; /* gray-400 gray-200 */
+            scrollbar-color: #9CA3AF #E5E7EB;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54 20c0-2.21-1.79-4-4-4H10c-2.21 0-4 1.79-4 4v20c0 2.21 1.79 4 4 4h40c2.21 0 4-1.79 4-4V20zm-6 12c0 3.31-2.69 6-6 6H18c-3.31 0-6-2.69-6-6s2.69-6 6-6h24c3.31 0 6 2.69 6 6z' fill='%23dbeafe' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
         }
+        
         #chat-messages::-webkit-scrollbar {
             width: 8px;
         }
+        
         #chat-messages::-webkit-scrollbar-track {
-            background: #E5E7EB; /* gray-200 */
+            background: #E5E7EB;
             border-radius: 10px;
         }
+        
         #chat-messages::-webkit-scrollbar-thumb {
-            background-color: #9CA3AF; /* gray-400 */
+            background-color: #9CA3AF;
             border-radius: 10px;
-            border: 2px solid #E5E7EB; /* gray-200 */
+            border: 2px solid #E5E7EB;
         }
+        
         .user-message {
-            background-color: #2563EB; /* blue-600 */
+            background-color: #2563EB;
             color: white;
             align-self: flex-end;
             max-width: 80%;
+            animation: slideInRight 0.3s ease-out;
         }
+        
         .bot-message {
-            background-color: #F3F4F6; /* gray-100 */
-            color: #1F2937; /* gray-800 */
+            background-color: #F3F4F6;
+            color: #1F2937;
             align-self: flex-start;
             max-width: 80%;
+            animation: slideInLeft 0.3s ease-out;
         }
+        
         .message {
-            padding: 0.6rem 1rem; /* Adjusted padding */
-            border-radius: 0.75rem; /* 12px */
+            padding: 0.6rem 1rem;
+            border-radius: 0.75rem;
             margin-bottom: 0.5rem;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
             line-height: 1.5;
             word-wrap: break-word;
+            transition: transform 0.2s ease;
         }
+        
+        .message:hover {
+            transform: scale(1.01);
+        }
+        
         .quiz-question-message {
-            background-color: #E0E7FF; /* indigo-100 */
-            color: #3730A3; /* indigo-800 */
+            background-color: #E0E7FF;
+            color: #3730A3;
             align-self: flex-start;
-            width: 100%; /* Full width for questions */
+            width: 100%;
             max-width: 100%;
+            border-left: 4px solid #4F46E5;
+            animation: pulse 2s infinite;
         }
+        
         .quiz-option-button {
             transition: all 0.2s ease-in-out;
+            position: relative;
+            overflow: hidden;
         }
+        
         .quiz-option-button:hover {
             transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
+        
+        .quiz-option-button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: translateX(-100%);
+        }
+        
+        .quiz-option-button:hover::after {
+            animation: shine 1.5s infinite;
+        }
+        
+        @keyframes shine {
+            100% { transform: translateX(100%); }
+        }
+        
         .seal-container {
             transition: transform 0.3s ease-in-out;
+            position: relative;
+            z-index: 10;
         }
-        /* Seal animations (similar to before, slightly simplified for brevity in this diff) */
-        @keyframes idleBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
-        #seal.idle .seal-body { animation: idleBob 3s ease-in-out infinite; }
-        #seal.idle .seal-eyelid { animation: blink 4s infinite; }
-        @keyframes blink { 0%, 90%, 100% { transform: scaleY(0.1); opacity: 1;} 95% { transform: scaleY(1); opacity: 1;} }
-        #seal.thinking { transform: rotate(-5deg) translateX(-3px); }
-        #seal.thinking .seal-mouth { d: path("M 95 128 Q 100 130 105 128"); } /* Adjusted mouth position */
-        #seal.talking .seal-mouth { animation: talkMouth 0.5s infinite; }
-        @keyframes talkMouth { 0%, 100% { d: path("M 90 125 Q 100 130 110 125"); } 50% { d: path("M 90 125 Q 100 135 110 125"); } } /* Adjusted */
-        #seal.talking { animation: talkNod 0.5s infinite alternate; }
-        @keyframes talkNod { from { transform: translateY(0) rotate(1deg); } to { transform: translateY(-1px) rotate(-1deg); } }
-        #seal.error { transform: rotate(5deg) translateY(3px); }
-        #seal.error .seal-eye { fill: #E53E3E; }
-        #seal.error .seal-mouth { d: path("M 90 130 Q 100 120 110 130"); } /* Adjusted */
-
+        
+        .seal-container::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            top: -25%;
+            left: -25%;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2393c5fd' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.6;
+            z-index: -1;
+            animation: bubbles 15s linear infinite;
+        }
+        
+        @keyframes bubbles {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-100px) rotate(360deg); }
+        }
+        
+        /* Seal animations */
+        #seal {
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+        
+        #seal .seal-body {
+            transform-origin: center 70%;
+        }
+        
+        #seal .seal-eye {
+            transform-origin: center;
+        }
+        
+        #seal .seal-eyelid {
+            transform-origin: center;
+        }
+        
+        #seal .seal-mouth {
+            transform-origin: center;
+        }
+        
+        /* Idle state - gentle bobbing */
+        @keyframes idleBob { 
+            0%, 100% { transform: translateY(0) rotate(0deg); } 
+            50% { transform: translateY(-5px) rotate(1deg); } 
+        }
+        
+        @keyframes blink { 
+            0%, 90%, 100% { transform: scaleY(0.1); opacity: 1;} 
+            95% { transform: scaleY(1); opacity: 1;} 
+        }
+        
+        #seal.idle .seal-body { 
+            animation: idleBob 4s ease-in-out infinite; 
+        }
+        
+        #seal.idle .seal-eyelid { 
+            animation: blink 5s infinite; 
+        }
+        
+        #seal.idle .seal-eye {
+            animation: glance 8s infinite alternate;
+        }
+        
+        @keyframes glance {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            50% { transform: translateX(0); }
+            75% { transform: translateX(2px); }
+        }
+        
+        /* Thinking state - head tilt */
+        #seal.thinking { 
+            transform: rotate(-5deg) translateX(-3px); 
+        }
+        
+        #seal.thinking .seal-mouth { 
+            d: path("M 95 128 Q 100 130 105 128"); 
+        }
+        
+        #seal.thinking .seal-eye {
+            animation: thinkEyes 2s infinite alternate;
+        }
+        
+        @keyframes thinkEyes {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-2px); }
+        }
+        
+        /* Talking state - mouth movement */
+        #seal.talking .seal-mouth { 
+            animation: talkMouth 0.5s infinite; 
+        }
+        
+        @keyframes talkMouth { 
+            0%, 100% { d: path("M 90 125 Q 100 130 110 125"); } 
+            50% { d: path("M 90 125 Q 100 135 110 125"); } 
+        } 
+        
+        #seal.talking { 
+            animation: talkNod 0.5s infinite alternate; 
+        }
+        
+        @keyframes talkNod { 
+            from { transform: translateY(0) rotate(1deg); } 
+            to { transform: translateY(-3px) rotate(-1deg); } 
+        }
+        
+        /* Happy state */
+        #seal.happy {
+            animation: happyBob 0.8s ease-in-out infinite;
+        }
+        
+        #seal.happy .seal-mouth {
+            d: path("M 90 120 Q 100 140 110 120");
+            stroke: #4A5568;
+            stroke-width: 2;
+            fill: #4A5568;
+        }
+        
+        #seal.happy .seal-eye {
+            transform: scaleY(0.8);
+        }
+        
+        @keyframes happyBob {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+        }
+        
+        /* Error/sad state */
+        #seal.error { 
+            transform: rotate(5deg) translateY(3px); 
+            animation: sadShake 0.5s ease-in-out;
+        }
+        
+        #seal.error .seal-eye { 
+            fill: #E53E3E; 
+            transform: translateY(2px);
+        }
+        
+        #seal.error .seal-mouth { 
+            d: path("M 90 130 Q 100 120 110 130"); 
+        }
+        
+        @keyframes sadShake {
+            0%, 100% { transform: rotate(0deg) translateY(0); }
+            25% { transform: rotate(5deg) translateY(3px); }
+            50% { transform: rotate(-5deg) translateY(3px); }
+            75% { transform: rotate(5deg) translateY(3px); }
+        }
+        
+        /* Splash effect for correct answers */
+        .splash {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 20;
+            background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23bfdbfe' fill-opacity='0.4' d='M49 32c5 15 20 30 35 35l-5 5c-15-5-30-20-35-35l5-5zm112 0c-5 15-20 30-35 35l5 5c15-5 30-20 35-35l-5-5zm-56 50c15 5 30 20 35 35l5-5c-5-15-20-30-35-35l-5 5zm0 56c-15-5-30-20-35-35l-5 5c5 15 20 30 35 35l5-5z'/%3E%3C/svg%3E");
+            opacity: 0;
+            animation: splash 1s ease-out;
+        }
+        
+        @keyframes splash {
+            0% { transform: scale(0.5); opacity: 0.8; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        
         .loader {
-            border: 3px solid #f3f3f3; border-top: 3px solid #2563EB;
-            border-radius: 50%; width: 20px; height: 20px;
-            animation: spin 1s linear infinite; margin-left: 0.5rem;
+            border: 3px solid #f3f3f3; 
+            border-top: 3px solid #2563EB;
+            border-radius: 50%; 
+            width: 20px; 
+            height: 20px;
+            animation: spin 1s linear infinite; 
+            margin-left: 0.5rem;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .typing-indicator { display: flex; align-items: center; padding: 0.6rem 1rem;}
-        .typing-indicator span { font-style: italic; color: #4B5563; } /* gray-600 */
+        
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+        
+        .typing-indicator { 
+            display: flex; 
+            align-items: center; 
+            padding: 0.6rem 1rem;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .typing-indicator span { 
+            font-style: italic; 
+            color: #4B5563;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .title-font {
+            font-family: 'Fredoka One', cursive;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .marine-button {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .marine-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .marine-button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
+            transition: all 0.3s ease;
+        }
+        
+        .marine-button:hover::after {
+            left: 100%;
+        }
+        
+        .marine-textarea {
+            transition: all 0.3s ease;
+            border: 1px solid #d1d5db;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .marine-textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            background-color: white;
+        }
+        
+        .quiz-score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1e40af;
+            text-align: center;
+            margin: 1rem 0;
+            animation: bounce 0.5s ease infinite alternate;
+        }
+        
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-5px); }
+        }
+        
+        .seal-fact {
+            background-color: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 0.5rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+            font-style: italic;
+            color: #1e40af;
+            animation: fadeIn 0.5s ease-out;
+        }
     </style>
 </head>
-<body class="flex flex-col h-screen bg-gradient-to-br from-sky-100 via-indigo-100 to-purple-200 p-2 sm:p-3">
+<body class="flex flex-col h-screen p-2 sm:p-3">
 
-    <!-- Contenedor de la Foca -->
-    <div class="seal-container flex-shrink-0 mx-auto mb-2 w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36">
+    <!-- Contenedor de la Foca con efecto de agua -->
+    <div class="seal-container flex-shrink-0 mx-auto mb-2 w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 relative">
+        <div id="splash" class="splash" style="display: none;"></div>
         <svg id="seal" viewBox="0 0 200 200" class="idle w-full h-full">
-            <path class="seal-body" d="M30,150 Q50,180 100,180 Q150,180 170,150 Q180,100 100,60 Q20,100 30,150 Z" fill="#A0AEC0"/>
-            <circle class="seal-eye" cx="80" cy="100" r="7" fill="#2D3748"/>
-            <circle class="seal-eye" cx="120" cy="100" r="7" fill="#2D3748"/>
-            <ellipse class="seal-eyelid" cx="80" cy="100" rx="7" ry="1" fill="#A0AEC0" style="transform-origin: 80px 100px;"/>
-            <ellipse class="seal-eyelid" cx="120" cy="100" rx="7" ry="1" fill="#A0AEC0" style="transform-origin: 120px 100px;"/>
-            <ellipse cx="100" cy="115" rx="9" ry="5" fill="#4A5568"/>
-            <path class="seal-mouth" d="M 90 125 Q 100 130 110 125" stroke="#4A5568" stroke-width="2.5" fill="transparent"/>
-            <path d="M40,140 Q20,160 40,170 Q50,165 40,140 Z" fill="#718096" transform="rotate(-15 40 155) scale(0.9)"/>
-            <path d="M160,140 Q180,160 160,170 Q150,165 160,140 Z" fill="#718096" transform="rotate(15 160 155) scale(0.9)"/>
+            <!-- Cuerpo de la foca con sombra -->
+            <defs>
+                <linearGradient id="sealBodyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#94a3b8" />
+                    <stop offset="100%" stop-color="#64748b" />
+                </linearGradient>
+                <filter id="sealShadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+            </defs>
+            
+            <!-- Cuerpo principal -->
+            <path class="seal-body" d="M30,150 Q50,180 100,180 Q150,180 170,150 Q180,100 100,60 Q20,100 30,150 Z" fill="url(#sealBodyGradient)" filter="url(#sealShadow)"/>
+            
+            <!-- Manchas en el cuerpo -->
+            <ellipse cx="70" cy="130" rx="15" ry="8" fill="#7f8ea3" opacity="0.3" transform="rotate(-15 70 130)"/>
+            <ellipse cx="130" cy="130" rx="15" ry="8" fill="#7f8ea3" opacity="0.3" transform="rotate(15 130 130)"/>
+            <circle cx="100" cy="100" r="10" fill="#7f8ea3" opacity="0.2"/>
+            
+            <!-- Ojos -->
+            <circle class="seal-eye" cx="80" cy="100" r="7" fill="#1e293b"/>
+            <circle class="seal-eye" cx="120" cy="100" r="7" fill="#1e293b"/>
+            
+            <!-- Párpados -->
+            <ellipse class="seal-eyelid" cx="80" cy="100" rx="7" ry="1" fill="#94a3b8" style="transform-origin: 80px 100px;"/>
+            <ellipse class="seal-eyelid" cx="120" cy="100" rx="7" ry="1" fill="#94a3b8" style="transform-origin: 120px 100px;"/>
+            
+            <!-- Nariz -->
+            <ellipse cx="100" cy="115" rx="9" ry="5" fill="#1e293b"/>
+            
+            <!-- Boca -->
+            <path class="seal-mouth" d="M 90 125 Q 100 130 110 125" stroke="#1e293b" stroke-width="2.5" fill="transparent"/>
+            
+            <!-- Aletas -->
+            <path d="M40,140 Q20,160 40,170 Q50,165 40,140 Z" fill="#64748b" transform="rotate(-15 40 155) scale(0.9)"/>
+            <path d="M160,140 Q180,160 160,170 Q150,165 160,140 Z" fill="#64748b" transform="rotate(15 160 155) scale(0.9)"/>
+            
+            <!-- Bigotes -->
+            <line x1="90" y1="120" x2="70" y2="115" stroke="#1e293b" stroke-width="1.5"/>
+            <line x1="90" y1="125" x2="70" y2="125" stroke="#1e293b" stroke-width="1.5"/>
+            <line x1="90" y1="130" x2="70" y2="135" stroke="#1e293b" stroke-width="1.5"/>
+            <line x1="110" y1="120" x2="130" y2="115" stroke="#1e293b" stroke-width="1.5"/>
+            <line x1="110" y1="125" x2="130" y2="125" stroke="#1e293b" stroke-width="1.5"/>
+            <line x1="110" y1="130" x2="130" y2="135" stroke="#1e293b" stroke-width="1.5"/>
         </svg>
     </div>
 
     <!-- Contenedor del Chat -->
-    <div class="w-full max-w-lg mx-auto bg-white shadow-2xl rounded-xl flex flex-col flex-grow overflow-hidden">
-        <header class="bg-blue-600 p-3 text-white text-center rounded-t-xl flex-shrink-0">
-            <h1 class="text-lg sm:text-xl font-semibold">Foca Asistente</h1>
+    <div class="w-full max-w-lg mx-auto bg-white shadow-2xl rounded-xl flex flex-col flex-grow overflow-hidden border-2 border-blue-100 transform transition-all duration-300 hover:shadow-lg">
+        <header class="bg-gradient-to-r from-blue-600 to-blue-500 p-3 text-white text-center rounded-t-xl flex-shrink-0">
+            <h1 class="text-lg sm:text-xl font-semibold title-font">Foca Asistente</h1>
+            <p class="text-xs sm:text-sm opacity-80">Tu compañero de aprendizaje acuático</p>
         </header>
 
         <div id="chat-messages" class="flex-grow p-3 sm:p-4 space-y-2 sm:space-y-3 overflow-y-auto text-sm md:text-base">
             <div class="bot-message message">
-                ¡Hola! Soy Foca. Puedo chatear o crear cuestionarios. ¿Qué te gustaría hacer?
+                ¡Hola! Soy Foca, tu asistente acuático. 🌊 Puedo chatear o crear cuestionarios interactivos. ¿Qué te gustaría hacer?
+            </div>
+            <div class="seal-fact">
+                <strong>¿Sabías que?</strong> Las focas pueden contener la respiración bajo el agua hasta por 2 horas.
             </div>
         </div>
 
         <div id="typing-indicator-container" class="p-2" style="display: none;">
              <div class="bot-message message typing-indicator text-xs sm:text-sm">
-                <span>Foca está escribiendo</span>
+                <span>Foca está escribiendo...</span>
                 <div class="loader"></div>
             </div>
         </div>
@@ -137,9 +483,10 @@
                 <span class="text-xs sm:text-sm font-medium text-gray-700">Modo Cuestionario</span>
             </div>
             <div class="flex items-center space-x-2">
-                <textarea id="userInput" class="flex-grow p-2.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" rows="1" placeholder="Escribe tu mensaje..." autofocus></textarea>
-                <button id="sendButton" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 sm:px-5 rounded-lg shadow-md transition duration-150 ease-in-out">
+                <textarea id="userInput" class="flex-grow p-2.5 text-sm sm:text-base marine-textarea rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" rows="1" placeholder="Escribe tu mensaje..." autofocus></textarea>
+                <button id="sendButton" class="marine-button text-white font-semibold py-2.5 px-4 sm:px-5 rounded-lg transition duration-150 ease-in-out flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    <span class="sr-only">Enviar</span>
                 </button>
             </div>
         </div>
@@ -150,46 +497,89 @@
         const sendButton = document.getElementById('sendButton');
         const chatMessages = document.getElementById('chat-messages');
         const sealElement = document.getElementById('seal');
+        const splashElement = document.getElementById('splash');
         const typingIndicatorContainer = document.getElementById('typing-indicator-container');
         const quizModeToggle = document.getElementById('quizModeToggle');
         const quizInteractionArea = document.getElementById('quiz-interaction-area');
         const userInputPlaceholderDefault = "Escribe tu mensaje...";
         const userInputPlaceholderQuiz = "Tema para el cuestionario (ej: El sistema solar)";
 
-        let chatHistory = [{ role: "model", parts: [{ text: "¡Hola! Soy Foca. Puedo chatear o crear cuestionarios. ¿Qué te gustaría hacer?" }] }];
+        let chatHistory = [{ role: "model", parts: [{ text: "¡Hola! Soy Foca, tu asistente acuático. 🌊 Puedo chatear o crear cuestionarios interactivos. ¿Qué te gustaría hacer?" }] }];
         let isQuizModeActive = false;
         let currentQuiz = null;
         let currentQuestionIndex = 0;
         let userScore = 0;
         const NUM_QUIZ_QUESTIONS = 3; // Number of questions for the quiz
 
+        // Datos curiosos sobre focas para mostrar aleatoriamente
+        const sealFacts = [
+            "Las focas pueden dormir bajo el agua y contener la respiración hasta por dos horas.",
+            "Las focas bebé se llaman 'crías' y nacen con un pelaje blanco llamado 'lanugo'.",
+            "Las focas tienen una capa de grasa llamada 'blubber' que las mantiene calientes en aguas frías.",
+            "Las focas pueden nadar hasta 25 km/h cuando están en peligro.",
+            "Las focas usan sus bigotes para detectar vibraciones en el agua y encontrar comida.",
+            "Las focas más grandes son los elefantes marinos, que pueden pesar hasta 4 toneladas.",
+            "Las focas no tienen orejas externas, solo pequeños orificios auditivos.",
+            "Las focas pueden bucear a profundidades de más de 300 metros.",
+            "Las focas pasan la mayor parte de su vida en el agua, pero dan a luz en tierra.",
+            "Las focas son mamíferos y necesitan salir a la superficie para respirar."
+        ];
+
         // --- Funciones de la Foca ---
         function setSealState(state) {
             sealElement.className.baseVal = '';
             sealElement.classList.add(state);
+            
+            // Efecto de salpicadura para respuestas correctas
+            if (state === 'happy') {
+                splashElement.style.display = 'block';
+                splashElement.style.animation = 'splash 1s ease-out';
+                setTimeout(() => {
+                    splashElement.style.display = 'none';
+                }, 1000);
+            }
+        }
+
+        // Mostrar un dato curioso aleatorio sobre focas
+        function showRandomSealFact() {
+            // Mostrar un dato cada 3-5 mensajes aproximadamente
+            if (Math.random() > 0.7) {
+                const fact = sealFacts[Math.floor(Math.random() * sealFacts.length)];
+                const factDiv = document.createElement('div');
+                factDiv.className = 'seal-fact';
+                factDiv.innerHTML = `<strong>¿Sabías que?</strong> ${fact}`;
+                chatMessages.appendChild(factDiv);
+                scrollToBottom();
+            }
         }
 
         // --- Funciones del Chat ---
-        function addMessage(text, sender, type = 'normal') { // type can be 'normal' or 'quiz-question'
+        function addMessage(text, sender, type = 'normal') {
             const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message');
+            messageDiv.classList.add('message', 'animate__animated');
+            
             if (sender === 'user') {
-                messageDiv.classList.add('user-message');
+                messageDiv.classList.add('user-message', 'animate__fadeInRight');
             } else {
-                messageDiv.classList.add('bot-message');
+                messageDiv.classList.add('bot-message', 'animate__fadeInLeft');
                 if (type === 'quiz-question') {
-                    messageDiv.classList.remove('bot-message'); // remove default bot style
-                    messageDiv.classList.add('quiz-question-message'); // add specific quiz question style
+                    messageDiv.classList.remove('bot-message');
+                    messageDiv.classList.add('quiz-question-message');
                 }
             }
             
             // Sanitize text (simple version, for complex HTML use a library)
             const tempDiv = document.createElement('div');
             tempDiv.textContent = text;
-            messageDiv.innerHTML = tempDiv.innerHTML.replace(/\n/g, '<br>'); // Preserve line breaks
+            messageDiv.innerHTML = tempDiv.innerHTML.replace(/\n/g, '<br>');
 
             chatMessages.appendChild(messageDiv);
             scrollToBottom();
+            
+            // Mostrar dato curioso ocasionalmente después de mensajes del bot
+            if (sender === 'bot' && type === 'normal') {
+                showRandomSealFact();
+            }
         }
         
         function scrollToBottom() {
@@ -198,28 +588,42 @@
 
         function showTypingIndicator() {
             typingIndicatorContainer.style.display = 'flex';
+            typingIndicatorContainer.classList.add('animate__animated', 'animate__fadeIn');
             scrollToBottom();
         }
 
         function hideTypingIndicator() {
-            typingIndicatorContainer.style.display = 'none';
+            typingIndicatorContainer.classList.add('animate__animated', 'animate__fadeOut');
+            setTimeout(() => {
+                typingIndicatorContainer.style.display = 'none';
+                typingIndicatorContainer.classList.remove('animate__fadeOut');
+            }, 300);
         }
 
         function toggleInputDisabled(disabled) {
             userInput.disabled = disabled;
             sendButton.disabled = disabled;
             quizModeToggle.disabled = disabled;
+            
+            if (disabled) {
+                sendButton.classList.add('opacity-70');
+            } else {
+                sendButton.classList.remove('opacity-70');
+            }
         }
 
         // --- Lógica del Cuestionario ---
         quizModeToggle.addEventListener('change', () => {
             isQuizModeActive = quizModeToggle.checked;
             userInput.placeholder = isQuizModeActive ? userInputPlaceholderQuiz : userInputPlaceholderDefault;
-            userInput.value = ''; // Clear input when toggling mode
-            if (!isQuizModeActive && currentQuiz) { // If toggled off during a quiz
-                addMessage("Modo cuestionario desactivado.", "bot");
+            userInput.value = '';
+            if (!isQuizModeActive && currentQuiz) {
+                addMessage("Modo cuestionario desactivado. ¡Vuelve cuando quieras jugar de nuevo! 🎮", "bot");
                 resetQuizState();
+            } else if (isQuizModeActive) {
+                addMessage("Modo cuestionario activado. 📝 Escribe un tema para generar un cuestionario.", "bot");
             }
+            userInput.focus();
         });
 
         function resetQuizState() {
@@ -232,12 +636,12 @@
         }
 
         async function handleQuizRequest(topic) {
-            addMessage(`Ok, generando un cuestionario sobre: "${topic}"...`, 'bot');
+            addMessage(`¡Vamos a aprender sobre: "${topic}"! 🌟 Generando un cuestionario...`, 'bot');
             showTypingIndicator();
             setSealState('thinking');
             toggleInputDisabled(true);
 
-            const apiKey = "AIzaSyC0T0NICCoW38oxRra5Sif770uk9P5-zZo"; // Dejar vacío
+            const apiKey = "AIzaSyC0T0NICCoW38oxRra5Sif770uk9P5-zZo";
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             
             const quizPrompt = `Eres un asistente experto en crear cuestionarios educativos. Por favor, genera un cuestionario interactivo sobre el siguiente tema: "${topic}". El cuestionario debe tener un título y ${NUM_QUIZ_QUESTIONS} preguntas. Cada pregunta debe ser de opción múltiple con exactamente 4 opciones (A, B, C, D), una sola respuesta correcta (indicada por su índice 0-3), y una breve explicación para la respuesta correcta. Devuelve la respuesta estrictamente en formato JSON utilizando el esquema proporcionado. No incluyas texto explicativo, comentarios, ni markdown antes o después del objeto JSON. Asegúrate que las opciones no contengan solo una letra como 'A.' sino el texto completo de la opción.`;
@@ -297,7 +701,7 @@
                     try {
                         currentQuiz = JSON.parse(jsonText);
                         if (currentQuiz.questions && currentQuiz.questions.length > 0) {
-                            addMessage(`¡Cuestionario generado! Título: "${currentQuiz.quizTitle}"`, 'bot');
+                            addMessage(`¡Cuestionario listo! 🎉 Tema: "${currentQuiz.quizTitle}"`, 'bot');
                             setSealState('talking');
                             setTimeout(() => setSealState('idle'), 2000);
                             startQuiz();
@@ -315,7 +719,7 @@
                 }
             } catch (error) {
                 console.error('Error al generar cuestionario:', error);
-                addMessage(`Lo siento, Foca no pudo crear el cuestionario: ${error.message}`, 'bot');
+                addMessage(`¡Ay! 🆘 Foca no pudo crear el cuestionario: ${error.message}`, 'bot');
                 setSealState('error');
                 hideTypingIndicator();
                 resetQuizState();
@@ -329,7 +733,7 @@
         }
 
         function displayQuestion() {
-            quizInteractionArea.innerHTML = ''; // Limpiar opciones anteriores
+            quizInteractionArea.innerHTML = '';
             if (!currentQuiz || currentQuestionIndex >= currentQuiz.questions.length) {
                 showQuizResults();
                 return;
@@ -343,11 +747,28 @@
             
             question.options.forEach((option, index) => {
                 const button = document.createElement('button');
-                button.className = 'quiz-option-button bg-sky-500 hover:bg-sky-600 text-white font-medium py-2 px-3 rounded-lg text-sm w-full text-left';
-                button.textContent = `${String.fromCharCode(65 + index)}. ${option}`; // A. Option, B. Option...
-                button.onclick = () => handleAnswerSelection(index);
+                button.className = 'quiz-option-button bg-sky-500 hover:bg-sky-600 text-white font-medium py-2 px-3 rounded-lg text-sm w-full text-left transition-all duration-200';
+                button.textContent = `${String.fromCharCode(65 + index)}. ${option}`;
+                
+                // Efecto de onda al hacer clic
+                button.onclick = (e) => {
+                    // Efecto visual al hacer clic
+                    const ripple = document.createElement('span');
+                    ripple.className = 'absolute top-1/2 left-1/2 w-2 h-2 bg-white opacity-70 rounded-full transform -translate-x-1/2 -translate-y-1/2';
+                    ripple.style.animation = 'ripple 0.6s linear';
+                    e.target.appendChild(ripple);
+                    
+                    // Eliminar el elemento después de la animación
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                    
+                    handleAnswerSelection(index);
+                };
+                
                 optionsContainer.appendChild(button);
             });
+            
             quizInteractionArea.appendChild(optionsContainer);
             scrollToBottom();
         }
@@ -359,12 +780,12 @@
 
             if (correct) {
                 userScore++;
-                feedback = `¡Correcto! ${question.explanation || ''}`;
-                setSealState('talking'); // Foca feliz
+                feedback = `✅ ¡Correcto! ${question.explanation || ''}`;
+                setSealState('happy');
             } else {
                 const correctAnswerLetter = String.fromCharCode(65 + question.correctOptionIndex);
-                feedback = `Incorrecto. La respuesta correcta era ${correctAnswerLetter}. ${question.options[question.correctOptionIndex]}. \nExplicación: ${question.explanation || ''}`;
-                setSealState('idle'); // Foca neutral o un poco triste
+                feedback = `❌ Incorrecto. La respuesta correcta era ${correctAnswerLetter}. ${question.options[question.correctOptionIndex]}. \n📚 Explicación: ${question.explanation || ''}`;
+                setSealState('idle');
             }
             addMessage(feedback, 'bot');
             
@@ -375,29 +796,46 @@
                 } else {
                     showQuizResults();
                 }
-                if(correct) setTimeout(() => setSealState('idle'), 1500); // Volver a idle
-            }, 500); // Pequeña pausa antes de la siguiente pregunta o resultados
-             quizInteractionArea.innerHTML = '<p class="text-sm text-gray-500 text-center py-2">Seleccionando siguiente pregunta...</p>'; // Feedback visual
+            }, 1000);
+            
+            quizInteractionArea.innerHTML = '<p class="text-sm text-gray-500 text-center py-2 animate-pulse">Cargando siguiente pregunta...</p>';
         }
 
         function showQuizResults() {
-            addMessage(`¡Cuestionario completado!\nTu puntuación: ${userScore} de ${currentQuiz.questions.length}.`, 'bot');
-            if (userScore === currentQuiz.questions.length) {
-                addMessage("¡Felicidades, todas correctas! Eres genial.", "bot");
-                setSealState('talking'); // Foca muy feliz
-            } else if (userScore >= currentQuiz.questions.length / 2) {
-                addMessage("¡Buen trabajo! Sigue aprendiendo.", "bot");
+            const scorePercentage = Math.round((userScore / currentQuiz.questions.length) * 100);
+            let resultMessage = '';
+            
+            if (scorePercentage === 100) {
+                resultMessage = `🏆 ¡Perfecto! ${userScore} de ${currentQuiz.questions.length} (${scorePercentage}%). ¡Eres increíble!`;
+                setSealState('happy');
+            } else if (scorePercentage >= 70) {
+                resultMessage = `👍 ¡Buen trabajo! ${userScore} de ${currentQuiz.questions.length} (${scorePercentage}%). Casi lo logras todo.`;
+                setSealState('idle');
+            } else if (scorePercentage >= 50) {
+                resultMessage = `😊 No está mal. ${userScore} de ${currentQuiz.questions.length} (${scorePercentage}%). Sigue practicando.`;
                 setSealState('idle');
             } else {
-                addMessage("No te preocupes, ¡la práctica hace al maestro!", "bot");
+                resultMessage = `🤔 ${userScore} de ${currentQuiz.questions.length} (${scorePercentage}%). No te rindas, ¡la práctica hace al maestro!`;
                 setSealState('idle');
             }
-            resetQuizState();
-            quizModeToggle.checked = false; // Desactivar modo cuestionario
-            isQuizModeActive = false;
-            userInput.placeholder = userInputPlaceholderDefault;
+            
+            addMessage(`¡Cuestionario completado!\n${resultMessage}`, 'bot');
+            
+            // Mostrar botón para reiniciar
+            const restartButton = document.createElement('button');
+            restartButton.className = 'marine-button text-white font-medium py-2 px-4 rounded-lg mt-2 w-full';
+            restartButton.textContent = '¿Otro cuestionario?';
+            restartButton.onclick = () => {
+                quizModeToggle.checked = true;
+                isQuizModeActive = true;
+                userInput.placeholder = userInputPlaceholderQuiz;
+                quizInteractionArea.innerHTML = '';
+                addMessage("¡Genial! Escribe un nuevo tema para otro cuestionario.", "bot");
+            };
+            
+            quizInteractionArea.innerHTML = '';
+            quizInteractionArea.appendChild(restartButton);
         }
-
 
         // --- Lógica Principal de Envío ---
         async function sendMessage() {
@@ -406,7 +844,7 @@
 
             addMessage(messageText, 'user');
             userInput.value = '';
-            userInput.style.height = 'auto'; // Reset height for textarea
+            userInput.style.height = 'auto';
 
             if (isQuizModeActive) {
                 chatHistory.push({ role: "user", parts: [{ text: `Solicitud de cuestionario sobre: ${messageText}` }] });
@@ -426,7 +864,11 @@
                 
                 const payload = {
                     contents: chatHistory,
-                    // generationConfig: { temperature: 0.7, topK: 1, topP: 1, maxOutputTokens: 2048 },
+                    generationConfig: { 
+                        temperature: 0.7,
+                        topP: 0.9,
+                        maxOutputTokens: 1000
+                    },
                 };
 
                 const response = await fetch(apiUrl, {
@@ -461,7 +903,7 @@
                 }
             } catch (error) {
                 console.error('Error al enviar mensaje:', error);
-                addMessage(`Oops, Foca tuvo un problema: ${error.message}`, 'bot');
+                addMessage(`¡Ups! 🚨 Foca tuvo un problema: ${error.message}`, 'bot');
                 chatHistory.push({ role: "model", parts: [{ text: `Error: ${error.message}` }] });
                 setSealState('error');
                 hideTypingIndicator();
@@ -474,6 +916,7 @@
             }
         }
 
+        // Event listeners
         sendButton.addEventListener('click', sendMessage);
         userInput.addEventListener('keypress', (event) => {
             if (event.key === 'Enter' && !event.shiftKey) {
@@ -482,7 +925,7 @@
             }
         });
 
-        // Estado inicial y placeholder
+        // Estado inicial
         setSealState('idle');
         userInput.placeholder = userInputPlaceholderDefault;
 
@@ -490,7 +933,7 @@
         userInput.addEventListener('input', () => {
             userInput.style.height = 'auto';
             let newHeight = userInput.scrollHeight;
-            const maxHeight = 100; // Aprox 4-5 líneas
+            const maxHeight = 100;
             if (newHeight > maxHeight) {
                 newHeight = maxHeight;
                 userInput.style.overflowY = 'auto';
@@ -499,11 +942,15 @@
             }
             userInput.style.height = newHeight + 'px';
         });
-        userInput.dispatchEvent(new Event('input')); // Ajuste inicial
+        userInput.dispatchEvent(new Event('input'));
         
-        // Saludo inicial
-        scrollToBottom(); // Para asegurar que el mensaje inicial sea visible si el chat es corto
-
+        // Saludo inicial con animación
+        setTimeout(() => {
+            sealElement.classList.add('animate__animated', 'animate__bounceIn');
+            setTimeout(() => {
+                sealElement.classList.remove('animate__bounceIn');
+            }, 1000);
+        }, 500);
     </script>
 </body>
 </html>
