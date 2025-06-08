@@ -12,1079 +12,538 @@
         
         body {
             font-family: 'Inter', sans-serif;
+            background: #e0f7ff; /* Fallback color */
+            overflow: hidden;
+        }
+        
+        #app-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: linear-gradient(135deg, #e0f2fe 0%, #e0e7ff 50%, #f0f9ff 100%);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
+            z-index: -1;
         }
-        
+
         @keyframes gradientBG {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
+
+        /* --- ESTILOS DE LA TRANSICIÓN DE INICIO (SPLASH SCREEN) --- */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, #3b82f6, #60a5fa, #93c5fd);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            overflow: hidden;
+            transition: opacity 1.2s ease-in-out, transform 1.2s ease-in-out;
+        }
+
+        #splash-screen.hidden {
+            opacity: 0;
+            transform: translateY(-100%);
+            pointer-events: none;
+        }
+
+        .waves-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60%; /* Olas más grandes */
+        }
         
+        .wave {
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            background-size: 50% 100%;
+            background-repeat: repeat-x;
+            animation: wave-flow 10s linear infinite;
+        }
+
+        #wave1 {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cdefs%3E%3ClinearGradient id='grad1' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:rgba(59, 130, 246, 0.8);' /%3E%3Cstop offset='100%25' style='stop-color:rgba(29, 78, 216, 0.9);' /%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M800 56.9c-155.5 0-204.9-50-405.5-49.9-200 0-250 49.9-394.5 49.9v31.8h800v-.2-31.6z' fill='url(%23grad1)'/%3E%3C/svg%3E");
+            animation-duration: 12s;
+            opacity: 1;
+            z-index: 3;
+        }
+        
+        #wave2 {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cdefs%3E%3ClinearGradient id='grad2' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:rgba(96, 165, 250, 0.6);' /%3E%3Cstop offset='100%25' style='stop-color:rgba(59, 130, 246, 0.7);' /%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M800 56.9c-155.5 0-204.9-50-405.5-49.9-200 0-250 49.9-394.5 49.9v31.8h800v-.2-31.6z' fill='url(%23grad2)'/%3E%3C/svg%3E");
+            animation-duration: 18s;
+            animation-direction: reverse;
+            opacity: 0.9;
+            z-index: 2;
+        }
+        
+        #wave3 {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cdefs%3E%3ClinearGradient id='grad3' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:rgba(147, 197, 253, 0.4);' /%3E%3Cstop offset='100%25' style='stop-color:rgba(96, 165, 250, 0.5);' /%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M800 56.9c-155.5 0-204.9-50-405.5-49.9-200 0-250 49.9-394.5 49.9v31.8h800v-.2-31.6z' fill='url(%23grad3)'/%3E%3C/svg%3E");
+            animation-duration: 25s;
+            opacity: 0.8;
+            z-index: 1;
+        }
+
+        @keyframes wave-flow {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .splash-seal-container {
+            width: 150px;
+            height: 150px;
+            z-index: 4;
+            animation: seal-intro 4s ease-in-out forwards;
+            transform: translateY(100%);
+            margin-bottom: 5vh; /* Ajuste para que se vea mejor con olas grandes */
+        }
+        
+        @keyframes seal-intro {
+            0% { transform: translateY(100%); }
+            20% { transform: translateY(-10%) rotate(-5deg); }
+            60% { transform: translateY(-10%) rotate(5deg); }
+            80% { transform: translateY(-10%) rotate(0deg); }
+            100% { transform: translateY(120%) rotate(10deg); }
+        }
+
+        .splash-title {
+            position: absolute;
+            top: 20%;
+            font-family: 'Fredoka One', cursive;
+            color: white;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            opacity: 0;
+            animation: title-fade-in 1s ease-out 0.5s forwards;
+        }
+
+        @keyframes title-fade-in { to { opacity: 1; } }
+
+        /* --- ESTILOS DE LA APLICACIÓN PRINCIPAL --- */
+        #main-container {
+            opacity: 0; /* Inicia oculto */
+            transition: opacity 0.8s ease-in-out;
+            height: 100vh;
+            width: 100%;
+        }
+
+        #main-container.visible {
+            opacity: 1;
+        }
+
         #chat-messages {
             scrollbar-width: thin;
             scrollbar-color: #9CA3AF #E5E7EB;
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54 20c0-2.21-1.79-4-4-4H10c-2.21 0-4 1.79-4 4v20c0 2.21 1.79 4 4 4h40c2.21 0 4-1.79 4-4V20zm-6 12c0 3.31-2.69 6-6 6H18c-3.31 0-6-2.69-6-6s2.69-6 6-6h24c3.31 0 6 2.69 6 6z' fill='%23dbeafe' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+            background-color: rgba(255, 255, 255, 0.5); /* Glassmorphism ligero */
+            backdrop-filter: blur(2px);
         }
         
-        #chat-messages::-webkit-scrollbar {
-            width: 8px;
+        #chat-messages::-webkit-scrollbar { width: 8px; }
+        #chat-messages::-webkit-scrollbar-track { background: transparent; }
+        #chat-messages::-webkit-scrollbar-thumb { background-color: #9CA3AF; border-radius: 10px; border: 2px solid transparent; }
+        .user-message { background-color: #2563EB; color: white; align-self: flex-end; max-width: 80%; animation: slideInRight 0.3s ease-out; }
+        .bot-message { background-color: #F3F4F6; color: #1F2937; align-self: flex-start; max-width: 80%; animation: slideInLeft 0.3s ease-out; }
+        .message { padding: 0.6rem 1rem; border-radius: 0.75rem; margin-bottom: 0.5rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); line-height: 1.5; word-wrap: break-word; transition: transform 0.2s ease; }
+        .quiz-question-message { background-color: #E0E7FF; color: #3730A3; align-self: flex-start; width: 100%; max-width: 100%; border-left: 4px solid #4F46E5; }
+        .quiz-option-button, .marine-button { position: relative; overflow: hidden; }
+        .quiz-option-button:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .seal-container { transition: transform 0.3s ease-in-out; position: relative; z-index: 10; }
+        .seal-container::before { content: ''; position: absolute; width: 150%; height: 150%; top: -25%; left: -25%; background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2393c5fd' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.6; z-index: -1; animation: bubbles 15s linear infinite;
         }
-        
-        #chat-messages::-webkit-scrollbar-track {
-            background: #E5E7EB;
-            border-radius: 10px;
-        }
-        
-        #chat-messages::-webkit-scrollbar-thumb {
-            background-color: #9CA3AF;
-            border-radius: 10px;
-            border: 2px solid #E5E7EB;
-        }
-        
-        .user-message {
-            background-color: #2563EB;
-            color: white;
-            align-self: flex-end;
-            max-width: 80%;
-            animation: slideInRight 0.3s ease-out;
-        }
-        
-        .bot-message {
-            background-color: #F3F4F6;
-            color: #1F2937;
-            align-self: flex-start;
-            max-width: 80%;
-            animation: slideInLeft 0.3s ease-out;
-        }
-        
-        .message {
-            padding: 0.6rem 1rem;
-            border-radius: 0.75rem;
-            margin-bottom: 0.5rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            line-height: 1.5;
-            word-wrap: break-word;
-            transition: transform 0.2s ease;
-        }
-        
-        .message:hover {
-            transform: scale(1.01);
-        }
-        
-        .quiz-question-message {
-            background-color: #E0E7FF;
-            color: #3730A3;
-            align-self: flex-start;
-            width: 100%;
-            max-width: 100%;
-            border-left: 4px solid #4F46E5;
-            animation: pulse 2s infinite;
-        }
-        
-        .quiz-option-button {
-            transition: all 0.2s ease-in-out;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .quiz-option-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        
-        .quiz-option-button::after {
-            content: '';
+        @keyframes bubbles { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-100px) rotate(360deg); } }
+        #seal { filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1)); }
+        #seal .seal-body { transform-origin: center 70%; }
+        #seal .seal-eye, #seal .seal-eyelid, #seal .seal-mouth { transform-origin: center; }
+        @keyframes idleBob { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-5px) rotate(1deg); } }
+        @keyframes blink { 0%, 90%, 100% { transform: scaleY(0.1); } 95% { transform: scaleY(1); } }
+        #seal.idle .seal-body { animation: idleBob 4s ease-in-out infinite; }
+        #seal.idle .seal-eyelid { animation: blink 5s infinite; }
+        #seal.idle .seal-eye { animation: glance 8s infinite alternate; }
+        @keyframes glance { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 50% { transform: translateX(0); } 75% { transform: translateX(2px); } }
+        #seal.thinking { transform: rotate(-5deg) translateX(-3px); }
+        #seal.talking .seal-mouth { animation: talkMouth 0.5s infinite; }
+        @keyframes talkMouth { 0%, 100% { d: path("M 90 125 Q 100 130 110 125"); } 50% { d: path("M 90 125 Q 100 135 110 125"); } }
+        #seal.talking { animation: talkNod 0.5s infinite alternate; }
+        @keyframes talkNod { from { transform: translateY(0) rotate(1deg); } to { transform: translateY(-3px) rotate(-1deg); } }
+        #seal.happy { animation: happyBob 0.8s ease-in-out infinite; }
+        #seal.happy .seal-mouth { d: path("M 90 120 Q 100 140 110 120"); fill: #4A5568; }
+        #seal.error { transform: rotate(5deg) translateY(3px); animation: sadShake 0.5s ease-in-out; }
+        #seal.error .seal-eye { fill: #E53E3E; }
+        #seal.error .seal-mouth { d: path("M 90 130 Q 100 120 110 130"); }
+        @keyframes sadShake { 0%, 100% { transform: rotate(0deg) translateY(0); } 25% { transform: rotate(5deg) translateY(3px); } 50% { transform: rotate(-5deg) translateY(3px); } 75% { transform: rotate(5deg) translateY(3px); } }
+        .splash { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; z-index: 20; background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23bfdbfe' fill-opacity='0.4' d='M49 32c5 15 20 30 35 35l-5 5c-15-5-30-20-35-35l5-5zm112 0c-5 15-20 30-35 35l5 5c15-5 30-20 35-35l-5-5zm-56 50c15 5 30 20 35 35l5-5c-5-15-20-30-35-35l-5 5zm0 56c-15-5-30-20-35-35l-5 5c5 15 20 30 35 35l5-5z'/%3E%3C/svg%3E"); opacity: 0; animation: splash 1s ease-out; }
+        @keyframes splash { 0% { transform: scale(0.5); opacity: 0.8; } 100% { transform: scale(1.5); opacity: 0; } }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #2563EB; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin-left: 0.5rem; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .typing-indicator { display: flex; align-items: center; padding: 0.6rem 1rem; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .title-font { font-family: 'Fredoka One', cursive; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+        .marine-button:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .marine-textarea { transition: all 0.3s ease; border: 1px solid #d1d5db; background-color: rgba(255, 255, 255, 0.8); }
+        .marine-textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); background-color: white; }
+        .seal-fact { background-color: #dbeafe; border-left: 4px solid #3b82f6; padding: 0.5rem 1rem; margin: 0.5rem 0; border-radius: 0 0.5rem 0.5rem 0; font-style: italic; color: #1e40af; animation: fadeIn 0.5s ease-out; }
+        .bold-text { font-weight: bold; color: #1e40af; }
+        .markdown-table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; font-size: 0.9rem; overflow-x: auto; display: block; }
+        .markdown-table th, .markdown-table td { padding: 0.5rem; border: 1px solid #d1d5db; text-align: left; }
+        .markdown-table th { background-color: #3b82f6; color: white; }
+        .markdown-table tr:nth-child(even) { background-color: #f3f4f6; }
+        .ripple {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transform: translateX(-100%);
-        }
-        
-        .quiz-option-button:hover::after {
-            animation: shine 1.5s infinite;
-        }
-        
-        @keyframes shine {
-            100% { transform: translateX(100%); }
-        }
-        
-        .seal-container {
-            transition: transform 0.3s ease-in-out;
-            position: relative;
-            z-index: 10;
-        }
-        
-        .seal-container::before {
-            content: '';
-            position: absolute;
-            width: 150%;
-            height: 150%;
-            top: -25%;
-            left: -25%;
-            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2393c5fd' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
-            opacity: 0.6;
-            z-index: -1;
-            animation: bubbles 15s linear infinite;
-        }
-        
-        @keyframes bubbles {
-            0% { transform: translateY(0) rotate(0deg); }
-            100% { transform: translateY(-100px) rotate(360deg); }
-        }
-        
-        /* Seal animations */
-        #seal {
-            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-        }
-        
-        #seal .seal-body {
-            transform-origin: center 70%;
-        }
-        
-        #seal .seal-eye {
-            transform-origin: center;
-        }
-        
-        #seal .seal-eyelid {
-            transform-origin: center;
-        }
-        
-        #seal .seal-mouth {
-            transform-origin: center;
-        }
-        
-        /* Idle state - gentle bobbing */
-        @keyframes idleBob { 
-            0%, 100% { transform: translateY(0) rotate(0deg); } 
-            50% { transform: translateY(-5px) rotate(1deg); } 
-        }
-        
-        @keyframes blink { 
-            0%, 90%, 100% { transform: scaleY(0.1); opacity: 1;} 
-            95% { transform: scaleY(1); opacity: 1;} 
-        }
-        
-        #seal.idle .seal-body { 
-            animation: idleBob 4s ease-in-out infinite; 
-        }
-        
-        #seal.idle .seal-eyelid { 
-            animation: blink 5s infinite; 
-        }
-        
-        #seal.idle .seal-eye {
-            animation: glance 8s infinite alternate;
-        }
-        
-        @keyframes glance {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-2px); }
-            50% { transform: translateX(0); }
-            75% { transform: translateX(2px); }
-        }
-        
-        /* Thinking state - head tilt */
-        #seal.thinking { 
-            transform: rotate(-5deg) translateX(-3px); 
-        }
-        
-        #seal.thinking .seal-mouth { 
-            d: path("M 95 128 Q 100 130 105 128"); 
-        }
-        
-        #seal.thinking .seal-eye {
-            animation: thinkEyes 2s infinite alternate;
-        }
-        
-        @keyframes thinkEyes {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-2px); }
-        }
-        
-        /* Talking state - mouth movement */
-        #seal.talking .seal-mouth { 
-            animation: talkMouth 0.5s infinite; 
-        }
-        
-        @keyframes talkMouth { 
-            0%, 100% { d: path("M 90 125 Q 100 130 110 125"); } 
-            50% { d: path("M 90 125 Q 100 135 110 125"); } 
-        } 
-        
-        #seal.talking { 
-            animation: talkNod 0.5s infinite alternate; 
-        }
-        
-        @keyframes talkNod { 
-            from { transform: translateY(0) rotate(1deg); } 
-            to { transform: translateY(-3px) rotate(-1deg); } 
-        }
-        
-        /* Happy state */
-        #seal.happy {
-            animation: happyBob 0.8s ease-in-out infinite;
-        }
-        
-        #seal.happy .seal-mouth {
-            d: path("M 90 120 Q 100 140 110 120");
-            stroke: #4A5568;
-            stroke-width: 2;
-            fill: #4A5568;
-        }
-        
-        #seal.happy .seal-eye {
-            transform: scaleY(0.8);
-        }
-        
-        @keyframes happyBob {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-8px) rotate(2deg); }
-        }
-        
-        /* Error/sad state */
-        #seal.error { 
-            transform: rotate(5deg) translateY(3px); 
-            animation: sadShake 0.5s ease-in-out;
-        }
-        
-        #seal.error .seal-eye { 
-            fill: #E53E3E; 
-            transform: translateY(2px);
-        }
-        
-        #seal.error .seal-mouth { 
-            d: path("M 90 130 Q 100 120 110 130"); 
-        }
-        
-        @keyframes sadShake {
-            0%, 100% { transform: rotate(0deg) translateY(0); }
-            25% { transform: rotate(5deg) translateY(3px); }
-            50% { transform: rotate(-5deg) translateY(3px); }
-            75% { transform: rotate(5deg) translateY(3px); }
-        }
-        
-        /* Splash effect for correct answers */
-        .splash {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            z-index: 20;
-            background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23bfdbfe' fill-opacity='0.4' d='M49 32c5 15 20 30 35 35l-5 5c-15-5-30-20-35-35l5-5zm112 0c-5 15-20 30-35 35l5 5c15-5 30-20 35-35l-5-5zm-56 50c15 5 30 20 35 35l5-5c-5-15-20-30-35-35l-5 5zm0 56c-15-5-30-20-35-35l-5 5c5 15 20 30 35 35l5-5z'/%3E%3C/svg%3E");
-            opacity: 0;
-            animation: splash 1s ease-out;
-        }
-        
-        @keyframes splash {
-            0% { transform: scale(0.5); opacity: 0.8; }
-            100% { transform: scale(1.5); opacity: 0; }
-        }
-        
-        .loader {
-            border: 3px solid #f3f3f3; 
-            border-top: 3px solid #2563EB;
-            border-radius: 50%; 
-            width: 20px; 
-            height: 20px;
-            animation: spin 1s linear infinite; 
-            margin-left: 0.5rem;
-        }
-        
-        @keyframes spin { 
-            0% { transform: rotate(0deg); } 
-            100% { transform: rotate(360deg); } 
-        }
-        
-        .typing-indicator { 
-            display: flex; 
-            align-items: center; 
-            padding: 0.6rem 1rem;
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        .typing-indicator span { 
-            font-style: italic; 
-            color: #4B5563;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .title-font {
-            font-family: 'Fredoka One', cursive;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-        }
-        
-        .marine-button {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .marine-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        
-        .marine-button::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -60%;
-            width: 200%;
-            height: 200%;
-            background: rgba(255, 255, 255, 0.1);
-            transform: rotate(30deg);
-            transition: all 0.3s ease;
-        }
-        
-        .marine-button:hover::after {
-            left: 100%;
-        }
-        
-        .marine-textarea {
-            transition: all 0.3s ease;
-            border: 1px solid #d1d5db;
-            background-color: rgba(255, 255, 255, 0.8);
-        }
-        
-        .marine-textarea:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-            background-color: white;
-        }
-        
-        .quiz-score {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #1e40af;
-            text-align: center;
-            margin: 1rem 0;
-            animation: bounce 0.5s ease infinite alternate;
-        }
-        
-        @keyframes bounce {
-            from { transform: translateY(0); }
-            to { transform: translateY(-5px); }
-        }
-        
-        .seal-fact {
-            background-color: #dbeafe;
-            border-left: 4px solid #3b82f6;
-            padding: 0.5rem 1rem;
-            margin: 0.5rem 0;
-            border-radius: 0 0.5rem 0.5rem 0;
-            font-style: italic;
-            color: #1e40af;
-            animation: fadeIn 0.5s ease-out;
-        }
-        
-        /* Estilos para texto con asteriscos */
-        .bold-text {
-            font-weight: bold;
-            color: #1e40af;
-        }
-        
-        .italic-text {
-            font-style: italic;
-            color: #374151;
-        }
-        
-        /* Estilos para tablas */
-        .markdown-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 0.5rem 0;
-            font-size: 0.9rem;
-            overflow-x: auto;
-            display: block;
-        }
-        
-        .markdown-table th, .markdown-table td {
-            padding: 0.5rem;
-            border: 1px solid #d1d5db;
-            text-align: left;
-        }
-        
-        .markdown-table th {
-            background-color: #3b82f6;
-            color: white;
-            font-weight: 600;
-        }
-        
-        .markdown-table tr:nth-child(even) {
-            background-color: #f3f4f6;
-        }
-        
-        .markdown-table tr:hover {
-            background-color: #e5e7eb;
-        }
-        
-        /* Efecto de onda para botones */
-        @keyframes ripple {
-            to {
-                transform: scale(20);
-                opacity: 0;
-            }
-        }
-        
-        /* Sonido al hacer clic */
-        .click-sound {
-            position: absolute;
-            opacity: 0;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.6);
+            transform: scale(0);
+            animation: ripple-effect 0.6s linear;
             pointer-events: none;
         }
+        @keyframes ripple-effect { to { transform: scale(4); opacity: 0; } }
+        .click-sound { position: absolute; opacity: 0; pointer-events: none; }
     </style>
 </head>
-<body class="flex flex-col h-screen p-2 sm:p-3">
-    <!-- Elementos de audio para efectos de sonido -->
-    <audio id="clickSound" class="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-modern-click-box-check-1120.mp3" preload="auto"></audio>
-    <audio id="sendSound" class="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3" preload="auto"></audio>
-    <audio id="correctSound" class="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" preload="auto"></audio>
-    <audio id="wrongSound" class="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" preload="auto"></audio>
-    <audio id="sealSound" class="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-creature-squeak-1011.mp3" preload="auto"></audio>
+<body class="flex flex-col items-center justify-center">
+    <div id="app-background"></div>
 
-    <!-- Contenedor de la Foca con efecto de agua -->
-    <div class="seal-container flex-shrink-0 mx-auto mb-2 w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 relative">
-        <div id="splash" class="splash" style="display: none;"></div>
-        <svg id="seal" viewBox="0 0 200 200" class="idle w-full h-full">
-            <!-- Cuerpo de la foca con sombra -->
-            <defs>
-                <linearGradient id="sealBodyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#94a3b8" />
-                    <stop offset="100%" stop-color="#64748b" />
-                </linearGradient>
-                <filter id="sealShadow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feGaussianBlur stdDeviation="3" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-            </defs>
-            
-            <!-- Cuerpo principal -->
-            <path class="seal-body" d="M30,150 Q50,180 100,180 Q150,180 170,150 Q180,100 100,60 Q20,100 30,150 Z" fill="url(#sealBodyGradient)" filter="url(#sealShadow)"/>
-            
-            <!-- Manchas en el cuerpo -->
-            <ellipse cx="70" cy="130" rx="15" ry="8" fill="#7f8ea3" opacity="0.3" transform="rotate(-15 70 130)"/>
-            <ellipse cx="130" cy="130" rx="15" ry="8" fill="#7f8ea3" opacity="0.3" transform="rotate(15 130 130)"/>
-            <circle cx="100" cy="100" r="10" fill="#7f8ea3" opacity="0.2"/>
-            
-            <!-- Ojos -->
-            <circle class="seal-eye" cx="80" cy="100" r="7" fill="#1e293b"/>
-            <circle class="seal-eye" cx="120" cy="100" r="7" fill="#1e293b"/>
-            
-            <!-- Párpados -->
-            <ellipse class="seal-eyelid" cx="80" cy="100" rx="7" ry="1" fill="#94a3b8" style="transform-origin: 80px 100px;"/>
-            <ellipse class="seal-eyelid" cx="120" cy="100" rx="7" ry="1" fill="#94a3b8" style="transform-origin: 120px 100px;"/>
-            
-            <!-- Nariz -->
-            <ellipse cx="100" cy="115" rx="9" ry="5" fill="#1e293b"/>
-            
-            <!-- Boca -->
-            <path class="seal-mouth" d="M 90 125 Q 100 130 110 125" stroke="#1e293b" stroke-width="2.5" fill="transparent"/>
-            
-            <!-- Aletas -->
-            <path d="M40,140 Q20,160 40,170 Q50,165 40,140 Z" fill="#64748b" transform="rotate(-15 40 155) scale(0.9)"/>
-            <path d="M160,140 Q180,160 160,170 Q150,165 160,140 Z" fill="#64748b" transform="rotate(15 160 155) scale(0.9)"/>
-            
-            <!-- Bigotes -->
-            <line x1="90" y1="120" x2="70" y2="115" stroke="#1e293b" stroke-width="1.5"/>
-            <line x1="90" y1="125" x2="70" y2="125" stroke="#1e293b" stroke-width="1.5"/>
-            <line x1="90" y1="130" x2="70" y2="135" stroke="#1e293b" stroke-width="1.5"/>
-            <line x1="110" y1="120" x2="130" y2="115" stroke="#1e293b" stroke-width="1.5"/>
-            <line x1="110" y1="125" x2="130" y2="125" stroke="#1e293b" stroke-width="1.5"/>
-            <line x1="110" y1="130" x2="130" y2="135" stroke="#1e293b" stroke-width="1.5"/>
-        </svg>
+    <!-- Pantalla de Carga Animada -->
+    <div id="splash-screen">
+        <h2 class="splash-title">Foca Asistente</h2>
+        <div class="waves-container">
+            <div class="wave" id="wave3"></div>
+            <div class="wave" id="wave2"></div>
+            <div class="wave" id="wave1"></div>
+        </div>
+        <div class="splash-seal-container">
+            <svg viewBox="0 0 200 200" class="w-full h-full">
+                <defs>
+                    <linearGradient id="sealBodyGradientSplash" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#c7d2fe" />
+                        <stop offset="100%" stop-color="#a5b4fc" />
+                    </linearGradient>
+                </defs>
+                <path d="M30,150 Q50,180 100,180 Q150,180 170,150 Q180,100 100,60 Q20,100 30,150 Z" fill="url(#sealBodyGradientSplash)"/>
+                <circle cx="80" cy="100" r="7" fill="#1e293b"/>
+                <circle cx="120" cy="100" r="7" fill="#1e293b"/>
+                <ellipse cx="100" cy="115" rx="9" ry="5" fill="#1e293b"/>
+                <path d="M 90 125 Q 100 135 110 125" stroke="#1e293b" stroke-width="2.5" fill="transparent"/>
+            </svg>
+        </div>
     </div>
 
-    <!-- Contenedor del Chat -->
-    <div class="w-full max-w-lg mx-auto bg-white shadow-2xl rounded-xl flex flex-col flex-grow overflow-hidden border-2 border-blue-100 transform transition-all duration-300 hover:shadow-lg">
-        <header class="bg-gradient-to-r from-blue-600 to-blue-500 p-3 text-white text-center rounded-t-xl flex-shrink-0">
-            <h1 class="text-lg sm:text-xl font-semibold title-font">Foca Asistente</h1>
-            <p class="text-xs sm:text-sm opacity-80">Tu compañero de aprendizaje acuático</p>
-        </header>
+    <!-- Contenido principal de la aplicación -->
+    <div id="main-container" class="flex flex-col w-full h-full p-2 sm:p-3">
+        <!-- Elementos de audio para efectos de sonido -->
+        <audio id="clickSound" class="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-modern-click-box-check-1120.mp3" preload="auto"></audio>
+        <audio id="sendSound" class="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3" preload="auto"></audio>
+        <audio id="correctSound" class="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" preload="auto"></audio>
+        <audio id="wrongSound" class="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" preload="auto"></audio>
+        <audio id="sealSound" class="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-creature-squeak-1011.mp3" preload="auto"></audio>
 
-        <div id="chat-messages" class="flex-grow p-3 sm:p-4 space-y-2 sm:space-y-3 overflow-y-auto text-sm md:text-base">
-            <div class="bot-message message">
-                ¡Hola! Soy Foca, tu asistente acuático. 🌊 Puedo chatear o crear cuestionarios interactivos. ¿Qué te gustaría hacer?
-            </div>
-            <div class="seal-fact">
-                <strong>¿Sabías que?</strong> Las focas pueden contener la respiración bajo el agua hasta por 2 horas.
-            </div>
+        <!-- Foca -->
+        <div class="seal-container flex-shrink-0 mx-auto mb-2 w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 relative">
+            <div id="splash" class="splash" style="display: none;"></div>
+            <svg id="seal" viewBox="0 0 200 200" class="idle w-full h-full">
+                 <defs>
+                    <linearGradient id="sealBodyGradient" x1="0%" y1="0%" x2="100%" y2="100%"> <stop offset="0%" stop-color="#94a3b8" /> <stop offset="100%" stop-color="#64748b" /> </linearGradient>
+                    <filter id="sealShadow" x="-20%" y="-20%" width="140%" height="140%"> <feGaussianBlur stdDeviation="3" result="blur" /> <feComposite in="SourceGraphic" in2="blur" operator="over" /> </filter>
+                </defs>
+                <path class="seal-body" d="M30,150 Q50,180 100,180 Q150,180 170,150 Q180,100 100,60 Q20,100 30,150 Z" fill="url(#sealBodyGradient)" filter="url(#sealShadow)"/>
+                <circle class="seal-eye" cx="80" cy="100" r="7" fill="#1e293b"/>
+                <circle class="seal-eye" cx="120" cy="100" r="7" fill="#1e293b"/>
+                <ellipse class="seal-eyelid" cx="80" cy="100" rx="7" ry="1" fill="#94a3b8" style="transform-origin: 80px 100px;"/>
+                <ellipse class="seal-eyelid" cx="120" cy="100" rx="7" ry="1" fill="#94a3b8" style="transform-origin: 120px 100px;"/>
+                <ellipse cx="100" cy="115" rx="9" ry="5" fill="#1e293b"/>
+                <path class="seal-mouth" d="M 90 125 Q 100 130 110 125" stroke="#1e293b" stroke-width="2.5" fill="transparent"/>
+            </svg>
         </div>
 
-        <div id="typing-indicator-container" class="p-2" style="display: none;">
-             <div class="bot-message message typing-indicator text-xs sm:text-sm">
-                <span>Foca está escribiendo...</span>
-                <div class="loader"></div>
+        <!-- Contenedor del Chat -->
+        <div class="w-full max-w-lg mx-auto bg-white/60 backdrop-blur-sm shadow-2xl rounded-xl flex flex-col flex-grow overflow-hidden border border-blue-100">
+            <header class="bg-gradient-to-r from-blue-600 to-blue-500 p-3 text-white text-center rounded-t-xl flex-shrink-0">
+                <h1 class="text-lg sm:text-xl font-semibold title-font">Foca Asistente</h1>
+            </header>
+            <div id="chat-messages" class="flex-grow p-3 sm:p-4 space-y-2 sm:space-y-3 overflow-y-auto">
+                <div class="bot-message message"> ¡Hola! Soy Foca, tu asistente acuático. 🌊 Puedo chatear o crear cuestionarios. ¿Qué te gustaría hacer? </div>
+                <div class="seal-fact"> <strong>¿Sabías que?</strong> Las focas pueden dormir bajo el agua. </div>
             </div>
-        </div>
-        
-        <div id="quiz-interaction-area" class="p-3 border-t border-gray-200">
-            <!-- Las opciones del cuestionario aparecerán aquí -->
-        </div>
-
-        <div class="p-3 border-t border-gray-200 bg-gray-50 rounded-b-xl flex-shrink-0">
-            <div class="flex items-center justify-center mb-2 space-x-2">
-                <span class="text-xs sm:text-sm font-medium text-gray-700">Modo Chat</span>
-                <label for="quizModeToggle" class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="quizModeToggle" class="sr-only peer">
-                    <div class="w-9 h-5 sm:w-11 sm:h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-green-500"></div>
-                </label>
-                <span class="text-xs sm:text-sm font-medium text-gray-700">Modo Cuestionario</span>
+            <div id="typing-indicator-container" class="p-2" style="display: none;">
+                <div class="bot-message message typing-indicator text-xs sm:text-sm"> <span>Foca está escribiendo...</span> <div class="loader"></div> </div>
             </div>
-            <div class="flex items-center space-x-2">
-                <textarea id="userInput" class="flex-grow p-2.5 text-sm sm:text-base marine-textarea rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" rows="1" placeholder="Escribe tu mensaje..." autofocus></textarea>
-                <button id="sendButton" class="marine-button text-white font-semibold py-2.5 px-4 sm:px-5 rounded-lg transition duration-150 ease-in-out flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                    <span class="sr-only">Enviar</span>
-                </button>
+            <div id="quiz-interaction-area" class="p-3 border-t border-gray-200/50"></div>
+            <div class="p-3 border-t border-gray-200/50 bg-gray-50/70 rounded-b-xl flex-shrink-0">
+                <div class="flex items-center justify-center mb-2 space-x-2">
+                    <span class="text-xs sm:text-sm font-medium text-gray-700">Modo Chat</span>
+                    <label for="quizModeToggle" class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="quizModeToggle" class="sr-only peer">
+                        <div class="w-9 h-5 sm:w-11 sm:h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                    </label>
+                    <span class="text-xs sm:text-sm font-medium text-gray-700">Modo Cuestionario</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <textarea id="userInput" class="flex-grow p-2.5 text-sm sm:text-base marine-textarea rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" rows="1" placeholder="Escribe tu mensaje..." autofocus></textarea>
+                    <button id="sendButton" class="marine-button bg-blue-500 text-white font-semibold py-2.5 px-4 sm:px-5 rounded-lg transition duration-150 ease-in-out flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                        <span class="sr-only">Enviar</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Elementos de sonido
+        // --- LÓGICA DE LA TRANSICIÓN DE INICIO ---
+        window.addEventListener('load', () => {
+            const splashScreen = document.getElementById('splash-screen');
+            const mainContainer = document.getElementById('main-container');
+
+            setTimeout(() => {
+                splashScreen.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                mainContainer.classList.add('visible');
+
+                const sealElement = document.getElementById('seal');
+                sealElement.classList.add('animate__animated', 'animate__bounceIn');
+                setTimeout(() => {
+                    sealElement.classList.remove('animate__animated', 'animate__bounceIn');
+                }, 1000);
+
+            }, 4200); 
+        });
+
+        // --- LÓGICA DEL CHATBOT ---
         const clickSound = document.getElementById('clickSound');
         const sendSound = document.getElementById('sendSound');
         const correctSound = document.getElementById('correctSound');
         const wrongSound = document.getElementById('wrongSound');
         const sealSound = document.getElementById('sealSound');
-        
-        // Elementos de la interfaz
         const userInput = document.getElementById('userInput');
         const sendButton = document.getElementById('sendButton');
+        const quizModeToggle = document.getElementById('quizModeToggle');
+
+        // Función para efecto de onda (Ripple)
+        function createRipple(event) {
+            const button = event.currentTarget;
+            playSound(clickSound);
+
+            const circle = document.createElement("span");
+            const diameter = Math.max(button.clientWidth, button.clientHeight);
+            const radius = diameter / 2;
+
+            circle.style.width = circle.style.height = `${diameter}px`;
+            const rect = button.getBoundingClientRect();
+            circle.style.left = `${event.clientX - rect.left - radius}px`;
+            circle.style.top = `${event.clientY - rect.top - radius}px`;
+            circle.classList.add("ripple");
+
+            const ripple = button.getElementsByClassName("ripple")[0];
+            if (ripple) { ripple.remove(); }
+            button.appendChild(circle);
+        }
+
+        // Aplicar efecto a botones
+        sendButton.addEventListener("click", createRipple);
+        quizModeToggle.parentElement.addEventListener("click", () => playSound(clickSound)); // Para el toggle
+
+
         const chatMessages = document.getElementById('chat-messages');
         const sealElement = document.getElementById('seal');
         const splashElement = document.getElementById('splash');
         const typingIndicatorContainer = document.getElementById('typing-indicator-container');
-        const quizModeToggle = document.getElementById('quizModeToggle');
         const quizInteractionArea = document.getElementById('quiz-interaction-area');
         const userInputPlaceholderDefault = "Escribe tu mensaje...";
         const userInputPlaceholderQuiz = "Tema para el cuestionario (ej: El sistema solar)";
-
         let chatHistory = [{ role: "model", parts: [{ text: "¡Hola! Soy Foca, tu asistente acuático. 🌊 Puedo chatear o crear cuestionarios interactivos. ¿Qué te gustaría hacer?" }] }];
         let isQuizModeActive = false;
         let currentQuiz = null;
         let currentQuestionIndex = 0;
         let userScore = 0;
-        const NUM_QUIZ_QUESTIONS = 3; // Número de preguntas para el cuestionario
-
-        // Datos curiosos sobre focas para mostrar aleatoriamente
-        const sealFacts = [
-            "Las focas pueden dormir bajo el agua y contener la respiración hasta por dos horas.",
-            "Las focas bebé se llaman 'crías' y nacen con un pelaje blanco llamado 'lanugo'.",
-            "Las focas tienen una capa de grasa llamada 'blubber' que las mantiene calientes en aguas frías.",
-            "Las focas pueden nadar hasta 25 km/h cuando están en peligro.",
-            "Las focas usan sus bigotes para detectar vibraciones en el agua y encontrar comida.",
-            "Las focas más grandes son los elefantes marinos, que pueden pesar hasta 4 toneladas.",
-            "Las focas no tienen orejas externas, solo pequeños orificios auditivos.",
-            "Las focas pueden bucear a profundidades de más de 300 metros.",
-            "Las focas pasan la mayor parte de su vida en el agua, pero dan a luz en tierra.",
-            "Las focas son mamíferos y necesitan salir a la superficie para respirar."
-        ];
-
-        // --- Funciones de Sonido ---
-        function playSound(soundElement) {
-            soundElement.currentTime = 0; // Rebobinar el sonido
-            soundElement.play().catch(e => console.log("No se pudo reproducir el sonido:", e));
-        }
-
-        // --- Funciones de la Foca ---
+        const NUM_QUIZ_QUESTIONS = 3;
+        const sealFacts = [ "Las focas pueden dormir bajo el agua y contener la respiración hasta por dos horas.", "Las focas bebé se llaman 'crías' y nacen con un pelaje blanco llamado 'lanugo'.", "Las focas tienen una capa de grasa llamada 'blubber' que las mantiene calientes en aguas frías.", "Las focas pueden nadar hasta 25 km/h cuando están en peligro.", "Las focas usan sus bigotes para detectar vibraciones en el agua y encontrar comida.", "Las focas más grandes son los elefantes marinos, que pueden pesar hasta 4 toneladas." ];
+        
+        function playSound(soundElement) { soundElement.currentTime = 0; soundElement.play().catch(e => {}); }
         function setSealState(state) {
             sealElement.className.baseVal = '';
             sealElement.classList.add(state);
-            
-            // Efecto de salpicadura para respuestas correctas
             if (state === 'happy') {
                 splashElement.style.display = 'block';
                 splashElement.style.animation = 'splash 1s ease-out';
-                setTimeout(() => {
-                    splashElement.style.display = 'none';
-                }, 1000);
+                setTimeout(() => { splashElement.style.display = 'none'; }, 1000);
             }
-            
-            // Sonido de foca cuando habla
-            if (state === 'talking') {
-                playSound(sealSound);
-            }
+            if (state === 'talking') { playSound(sealSound); }
         }
-
-        // Mostrar un dato curioso aleatorio sobre focas
         function showRandomSealFact() {
-            // Mostrar un dato cada 3-5 mensajes aproximadamente
             if (Math.random() > 0.7) {
                 const fact = sealFacts[Math.floor(Math.random() * sealFacts.length)];
-                const factDiv = document.createElement('div');
-                factDiv.className = 'seal-fact';
-                factDiv.innerHTML = `<strong>¿Sabías que?</strong> ${fact}`;
-                chatMessages.appendChild(factDiv);
-                scrollToBottom();
+                addMessage(`<strong>¿Sabías que?</strong> ${fact}`, 'bot', 'fact');
             }
         }
-
-        // --- Funciones de Formateo de Texto ---
         function formatTextWithMarkdown(text) {
-            // Reemplazar **texto** con <strong>
             text = text.replace(/\*\*(.*?)\*\*/g, '<span class="bold-text">$1</span>');
-            
-            // Reemplazar *texto* con <em>
             text = text.replace(/\*(.*?)\*/g, '<span class="italic-text">$1</span>');
-            
-            // Formatear tablas
-            text = formatMarkdownTables(text);
-            
-            return text;
+            return formatMarkdownTables(text);
         }
-        
         function formatMarkdownTables(text) {
-            // Detectar tablas en formato markdown
             const tableRegex = /(\|.*\|\n\|.*\|\n)((?:\|.*\|\n)*)/g;
-            
             return text.replace(tableRegex, (match, headerRow, bodyRows) => {
-                // Procesar fila de encabezado
-                const headers = headerRow.split('|')
-                    .filter(cell => cell.trim() !== '')
-                    .map(cell => `<th>${cell.trim()}</th>`)
-                    .join('');
-                
-                // Procesar filas del cuerpo
-                const rows = bodyRows.split('\n')
-                    .filter(row => row.trim() !== '')
-                    .map(row => {
-                        const cells = row.split('|')
-                            .filter(cell => cell.trim() !== '')
-                            .map(cell => `<td>${cell.trim()}</td>`)
-                            .join('');
-                        return `<tr>${cells}</tr>`;
-                    })
-                    .join('');
-                
-                // Crear tabla HTML
+                const headers = headerRow.split('|').filter(cell => cell.trim() !== '').map(cell => `<th>${cell.trim()}</th>`).join('');
+                const rows = bodyRows.split('\n').filter(row => row.trim() !== '').map(row => { const cells = row.split('|').filter(cell => cell.trim() !== '').map(cell => `<td>${cell.trim()}</td>`).join(''); return `<tr>${cells}</tr>`; }).join('');
                 return `<div style="overflow-x:auto;"><table class="markdown-table"><thead><tr>${headers}</tr></thead><tbody>${rows}</tbody></table></div>`;
             });
         }
-
-        // --- Funciones del Chat ---
         function addMessage(text, sender, type = 'normal') {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message', 'animate__animated');
-            
-            if (sender === 'user') {
-                messageDiv.classList.add('user-message', 'animate__fadeInRight');
-            } else {
-                messageDiv.classList.add('bot-message', 'animate__fadeInLeft');
-                if (type === 'quiz-question') {
-                    messageDiv.classList.remove('bot-message');
-                    messageDiv.classList.add('quiz-question-message');
-                }
+            if (sender === 'user') { messageDiv.classList.add('user-message', 'animate__fadeInRight'); }
+            else {
+                if (type === 'quiz-question') { messageDiv.classList.add('quiz-question-message', 'animate__fadeInLeft'); }
+                else if (type === 'fact') { messageDiv.classList.add('seal-fact', 'animate__fadeInLeft'); }
+                else { messageDiv.classList.add('bot-message', 'animate__fadeInLeft'); }
             }
-            
-            // Formatear texto con markdown
             const formattedText = formatTextWithMarkdown(text);
-            
-            // Crear elemento de contenido
             const contentDiv = document.createElement('div');
             contentDiv.innerHTML = formattedText.replace(/\n/g, '<br>');
-            
             messageDiv.appendChild(contentDiv);
             chatMessages.appendChild(messageDiv);
             scrollToBottom();
-            
-            // Mostrar dato curioso ocasionalmente después de mensajes del bot
-            if (sender === 'bot' && type === 'normal') {
-                showRandomSealFact();
-            }
+            if (sender === 'bot' && type === 'normal') { showRandomSealFact(); }
         }
-        
-        function scrollToBottom() {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function showTypingIndicator() {
-            typingIndicatorContainer.style.display = 'flex';
-            typingIndicatorContainer.classList.add('animate__animated', 'animate__fadeIn');
-            scrollToBottom();
-        }
-
+        function scrollToBottom() { chatMessages.scrollTop = chatMessages.scrollHeight; }
+        function showTypingIndicator() { typingIndicatorContainer.style.display = 'flex'; typingIndicatorContainer.classList.add('animate__animated', 'animate__fadeIn'); scrollToBottom(); }
         function hideTypingIndicator() {
             typingIndicatorContainer.classList.add('animate__animated', 'animate__fadeOut');
-            setTimeout(() => {
-                typingIndicatorContainer.style.display = 'none';
-                typingIndicatorContainer.classList.remove('animate__fadeOut');
-            }, 300);
+            setTimeout(() => { typingIndicatorContainer.style.display = 'none'; typingIndicatorContainer.classList.remove('animate__fadeOut'); }, 300);
         }
-
         function toggleInputDisabled(disabled) {
-            userInput.disabled = disabled;
-            sendButton.disabled = disabled;
-            quizModeToggle.disabled = disabled;
-            
-            if (disabled) {
-                sendButton.classList.add('opacity-70');
-            } else {
-                sendButton.classList.remove('opacity-70');
-            }
+            userInput.disabled = disabled; sendButton.disabled = disabled; quizModeToggle.disabled = disabled;
+            if (disabled) { sendButton.classList.add('opacity-70'); }
+            else { sendButton.classList.remove('opacity-70'); }
         }
-
-        // --- Lógica del Cuestionario ---
         quizModeToggle.addEventListener('change', () => {
-            playSound(clickSound);
             isQuizModeActive = quizModeToggle.checked;
             userInput.placeholder = isQuizModeActive ? userInputPlaceholderQuiz : userInputPlaceholderDefault;
             userInput.value = '';
-            if (!isQuizModeActive && currentQuiz) {
-                addMessage("Modo cuestionario desactivado. ¡Vuelve cuando quieras jugar de nuevo! 🎮", "bot");
-                resetQuizState();
-            } else if (isQuizModeActive) {
-                addMessage("Modo cuestionario activado. 📝 Escribe un tema para generar un cuestionario.", "bot");
-            }
+            if (!isQuizModeActive && currentQuiz) { addMessage("Modo cuestionario desactivado. ¡Vuelve cuando quieras jugar de nuevo! 🎮", "bot"); resetQuizState(); }
+            else if (isQuizModeActive) { addMessage("Modo cuestionario activado. 📝 Escribe un tema para generar un cuestionario.", "bot"); }
             userInput.focus();
         });
-
-        function resetQuizState() {
-            currentQuiz = null;
-            currentQuestionIndex = 0;
-            userScore = 0;
-            quizInteractionArea.innerHTML = '';
-            toggleInputDisabled(false);
-            userInput.placeholder = isQuizModeActive ? userInputPlaceholderQuiz : userInputPlaceholderDefault;
-        }
-
+        function resetQuizState() { currentQuiz = null; currentQuestionIndex = 0; userScore = 0; quizInteractionArea.innerHTML = ''; toggleInputDisabled(false); userInput.placeholder = isQuizModeActive ? userInputPlaceholderQuiz : userInputPlaceholderDefault; }
         async function handleQuizRequest(topic) {
-            addMessage(`¡Vamos a aprender sobre: "${topic}"! 🌟 Generando un cuestionario...`, 'bot');
-            showTypingIndicator();
-            setSealState('thinking');
-            toggleInputDisabled(true);
-
+            addMessage(`Generando un cuestionario sobre: "${topic}"...`, 'bot');
+            showTypingIndicator(); setSealState('thinking'); toggleInputDisabled(true);
             const apiKey = "AIzaSyC0T0NICCoW38oxRra5Sif770uk9P5-zZo";
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-            
-            const quizPrompt = `Eres un asistente experto en crear cuestionarios educativos. Por favor, genera un cuestionario interactivo sobre el siguiente tema: "${topic}". El cuestionario debe tener un título y ${NUM_QUIZ_QUESTIONS} preguntas. Cada pregunta debe ser de opción múltiple con exactamente 4 opciones (A, B, C, D), una sola respuesta correcta (indicada por su índice 0-3), y una breve explicación para la respuesta correcta. Devuelve la respuesta estrictamente en formato JSON utilizando el esquema proporcionado. No incluyas texto explicativo, comentarios, ni markdown antes o después del objeto JSON. Asegúrate que las opciones no contengan solo una letra como 'A.' sino el texto completo de la opción.`;
-
-            const schema = {
-                type: "OBJECT",
-                properties: {
-                    quizTitle: { type: "STRING", description: "Título del cuestionario." },
-                    questions: {
-                        type: "ARRAY",
-                        description: "Lista de preguntas para el cuestionario.",
-                        items: {
-                            type: "OBJECT",
-                            properties: {
-                                id: { type: "STRING", description: "Identificador único para la pregunta (ej: q1, q2)." },
-                                questionText: { type: "STRING", description: "El texto de la pregunta." },
-                                options: {
-                                    type: "ARRAY",
-                                    description: "Lista de 4 opciones de respuesta.",
-                                    items: { type: "STRING" }
-                                },
-                                correctOptionIndex: { type: "NUMBER", description: "Índice (0-3) de la opción correcta." },
-                                explanation: {type: "STRING", description: "Breve explicación de la respuesta correcta."}
-                            },
-                            required: ["id", "questionText", "options", "correctOptionIndex", "explanation"]
-                        }
-                    }
-                },
-                required: ["quizTitle", "questions"]
-            };
-
-            const payload = {
-                contents: [{ role: "user", parts: [{ text: quizPrompt }] }],
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: schema
-                }
-            };
-
+            const quizPrompt = `Crea un cuestionario sobre "${topic}" con un título y ${NUM_QUIZ_QUESTIONS} preguntas. Cada pregunta debe tener 4 opciones, 1 correcta (índice 0-3), y una explicación. Formato JSON estricto.`;
+            const schema = { type: "OBJECT", properties: { quizTitle: { type: "STRING" }, questions: { type: "ARRAY", items: { type: "OBJECT", properties: { questionText: { type: "STRING" }, options: { type: "ARRAY", items: { type: "STRING" } }, correctOptionIndex: { type: "NUMBER" }, explanation: {type: "STRING"} }, required: ["questionText", "options", "correctOptionIndex", "explanation"] } } }, required: ["quizTitle", "questions"] };
+            const payload = { contents: [{ role: "user", parts: [{ text: quizPrompt }] }], generationConfig: { responseMimeType: "application/json", responseSchema: schema } };
             try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 hideTypingIndicator();
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(`API Error ${response.status}: ${errorData?.error?.message || response.statusText}`);
-                }
-
+                if (!response.ok) { throw new Error(`Error de API ${response.status}`); }
                 const result = await response.json();
-                
-                if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts[0].text) {
+                if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
                     const jsonText = result.candidates[0].content.parts[0].text;
-                    try {
-                        currentQuiz = JSON.parse(jsonText);
-                        if (currentQuiz.questions && currentQuiz.questions.length > 0) {
-                            addMessage(`¡Cuestionario listo! 🎉 Tema: "${currentQuiz.quizTitle}"`, 'bot');
-                            setSealState('talking');
-                            setTimeout(() => setSealState('idle'), 2000);
-                            startQuiz();
-                        } else {
-                            throw new Error("El formato del cuestionario no es válido o no contiene preguntas.");
-                        }
-                    } catch (parseError) {
-                        console.error("Error al parsear JSON del cuestionario:", parseError, "\nJSON recibido:", jsonText);
-                        addMessage("Foca tuvo problemas para entender el formato del cuestionario. Intenta con otro tema.", 'bot');
-                        setSealState('error');
-                        resetQuizState();
-                    }
-                } else {
-                     throw new Error("No se recibió contenido válido de la API para el cuestionario.");
-                }
+                    currentQuiz = JSON.parse(jsonText);
+                    if (currentQuiz.questions?.length > 0) { addMessage(`¡Cuestionario listo! 🎉 Tema: "${currentQuiz.quizTitle}"`, 'bot'); setSealState('talking'); setTimeout(() => setSealState('idle'), 2000); startQuiz(); }
+                    else { throw new Error("Formato de cuestionario inválido."); }
+                } else { throw new Error("No se recibió contenido válido."); }
             } catch (error) {
-                console.error('Error al generar cuestionario:', error);
-                addMessage(`¡Ay! 🆘 Foca no pudo crear el cuestionario: ${error.message}`, 'bot');
-                setSealState('error');
-                hideTypingIndicator();
-                resetQuizState();
+                addMessage(`🆘 Foca no pudo crear el cuestionario: ${error.message}`, 'bot');
+                setSealState('error'); hideTypingIndicator(); resetQuizState();
             }
         }
-
-        function startQuiz() {
-            currentQuestionIndex = 0;
-            userScore = 0;
-            displayQuestion();
-        }
-
+        function startQuiz() { currentQuestionIndex = 0; userScore = 0; displayQuestion(); }
         function displayQuestion() {
             quizInteractionArea.innerHTML = '';
-            if (!currentQuiz || currentQuestionIndex >= currentQuiz.questions.length) {
-                showQuizResults();
-                return;
-            }
-
+            if (!currentQuiz || currentQuestionIndex >= currentQuiz.questions.length) { showQuizResults(); return; }
             const question = currentQuiz.questions[currentQuestionIndex];
-            addMessage(`Pregunta ${currentQuestionIndex + 1}/${currentQuiz.questions.length}:\n${question.questionText}`, 'bot', 'quiz-question');
-            
+            addMessage(`Pregunta ${currentQuestionIndex + 1}/${NUM_QUIZ_QUESTIONS}:\n${question.questionText}`, 'bot', 'quiz-question');
             const optionsContainer = document.createElement('div');
             optionsContainer.className = 'grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2';
-            
             question.options.forEach((option, index) => {
                 const button = document.createElement('button');
                 button.className = 'quiz-option-button bg-sky-500 hover:bg-sky-600 text-white font-medium py-2 px-3 rounded-lg text-sm w-full text-left transition-all duration-200';
-                button.textContent = `${String.fromCharCode(65 + index)}. ${option}`;
-                
-                // Efecto de onda al hacer clic
-                button.onclick = (e) => {
-                    playSound(clickSound);
-                    
-                    // Efecto visual al hacer clic
-                    const ripple = document.createElement('span');
-                    ripple.className = 'absolute top-1/2 left-1/2 w-2 h-2 bg-white opacity-70 rounded-full transform -translate-x-1/2 -translate-y-1/2';
-                    ripple.style.animation = 'ripple 0.6s linear';
-                    e.target.appendChild(ripple);
-                    
-                    // Eliminar el elemento después de la animación
-                    setTimeout(() => {
-                        ripple.remove();
-                    }, 600);
-                    
-                    handleAnswerSelection(index);
-                };
-                
+                button.innerHTML = `${String.fromCharCode(65 + index)}. ${option}`;
+                button.addEventListener("click", createRipple);
+                button.addEventListener('click', () => handleAnswerSelection(index));
                 optionsContainer.appendChild(button);
             });
-            
             quizInteractionArea.appendChild(optionsContainer);
             scrollToBottom();
         }
-
         function handleAnswerSelection(selectedIndex) {
+            Array.from(quizInteractionArea.getElementsByTagName('button')).forEach(b => b.disabled = true);
             const question = currentQuiz.questions[currentQuestionIndex];
             const correct = selectedIndex === question.correctOptionIndex;
             let feedback = "";
-
-            if (correct) {
-                userScore++;
-                feedback = `✅ ¡Correcto! ${question.explanation || ''}`;
-                setSealState('happy');
-                playSound(correctSound);
-            } else {
-                const correctAnswerLetter = String.fromCharCode(65 + question.correctOptionIndex);
-                feedback = `❌ Incorrecto. La respuesta correcta era ${correctAnswerLetter}. ${question.options[question.correctOptionIndex]}. \n📚 Explicación: ${question.explanation || ''}`;
-                setSealState('idle');
-                playSound(wrongSound);
-            }
+            if (correct) { userScore++; feedback = `✅ ¡Correcto! ${question.explanation || ''}`; setSealState('happy'); playSound(correctSound); }
+            else { const correctAnswerLetter = String.fromCharCode(65 + question.correctOptionIndex); feedback = `❌ Incorrecto. La respuesta era ${correctAnswerLetter}. \n📚 Explicación: ${question.explanation || ''}`; setSealState('idle'); playSound(wrongSound); }
             addMessage(feedback, 'bot');
-            
             currentQuestionIndex++;
-            setTimeout(() => {
-                 if (currentQuestionIndex < currentQuiz.questions.length) {
-                    displayQuestion();
-                } else {
-                    showQuizResults();
-                }
-            }, 1000);
-            
-            quizInteractionArea.innerHTML = '<p class="text-sm text-gray-500 text-center py-2 animate-pulse">Cargando siguiente pregunta...</p>';
+            setTimeout(() => { if (currentQuestionIndex < NUM_QUIZ_QUESTIONS) { displayQuestion(); } else { showQuizResults(); } }, 2000);
         }
-
         function showQuizResults() {
-            const scorePercentage = Math.round((userScore / currentQuiz.questions.length) * 100);
-            let resultMessage = '';
-            
-            if (scorePercentage === 100) {
-                resultMessage = `🏆 ¡Perfecto! ${userScore} de ${currentQuiz.questions.length} (${scorePercentage}%). ¡Eres increíble!`;
-                setSealState('happy');
-                playSound(correctSound);
-            } else if (scorePercentage >= 70) {
-                resultMessage = `👍 ¡Buen trabajo! ${userScore} de ${currentQuiz.questions.length} (${scorePercentage}%). Casi lo logras todo.`;
-                setSealState('idle');
-            } else if (scorePercentage >= 50) {
-                resultMessage = `😊 No está mal. ${userScore} de ${currentQuiz.questions.length} (${scorePercentage}%). Sigue practicando.`;
-                setSealState('idle');
-            } else {
-                resultMessage = `🤔 ${userScore} de ${currentQuiz.questions.length} (${scorePercentage}%). No te rindas, ¡la práctica hace al maestro!`;
-                setSealState('idle');
-            }
-            
-            addMessage(`¡Cuestionario completado!\n${resultMessage}`, 'bot');
-            
-            // Mostrar botón para reiniciar
-            const restartButton = document.createElement('button');
-            restartButton.className = 'marine-button text-white font-medium py-2 px-4 rounded-lg mt-2 w-full';
-            restartButton.textContent = '¿Otro cuestionario?';
-            restartButton.onclick = () => {
-                playSound(clickSound);
-                quizModeToggle.checked = true;
-                isQuizModeActive = true;
-                userInput.placeholder = userInputPlaceholderQuiz;
-                quizInteractionArea.innerHTML = '';
-                addMessage("¡Genial! Escribe un nuevo tema para otro cuestionario.", "bot");
-            };
-            
-            quizInteractionArea.innerHTML = '';
-            quizInteractionArea.appendChild(restartButton);
+            const scorePercentage = Math.round((userScore / NUM_QUIZ_QUESTIONS) * 100);
+            let resultMessage = `¡Cuestionario completado! ${userScore} de ${NUM_QUIZ_QUESTIONS} (${scorePercentage}%).`;
+            addMessage(resultMessage, 'bot');
+            resetQuizState();
+            addMessage("Escribe un nuevo tema si quieres otro cuestionario, o desactiva el modo para chatear.", 'bot');
         }
-
-        // --- Lógica Principal de Envío ---
         async function sendMessage() {
             const messageText = userInput.value.trim();
             if (messageText === '') return;
-
             addMessage(messageText, 'user');
-            userInput.value = '';
-            userInput.style.height = 'auto';
             playSound(sendSound);
+            const messageToSend = messageText;
+            userInput.value = ''; userInput.style.height = 'auto';
 
-            if (isQuizModeActive) {
-                chatHistory.push({ role: "user", parts: [{ text: `Solicitud de cuestionario sobre: ${messageText}` }] });
-                handleQuizRequest(messageText);
-                return;
-            }
+            if (isQuizModeActive) { handleQuizRequest(messageToSend); return; }
             
-            // Modo Chat Normal
-            chatHistory.push({ role: "user", parts: [{ text: messageText }] });
-            toggleInputDisabled(true);
-            setSealState('thinking');
-            showTypingIndicator();
-
+            chatHistory.push({ role: "user", parts: [{ text: messageToSend }] });
+            toggleInputDisabled(true); setSealState('thinking'); showTypingIndicator();
             try {
                 const apiKey = "AIzaSyC0T0NICCoW38oxRra5Sif770uk9P5-zZo"; 
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-                
-                const payload = {
-                    contents: chatHistory,
-                    generationConfig: { 
-                        temperature: 0.7,
-                        topP: 0.9,
-                        maxOutputTokens: 1000
-                    },
-                };
-
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                const payload = { contents: chatHistory, generationConfig: { temperature: 0.7, topP: 0.9, maxOutputTokens: 1000 } };
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 hideTypingIndicator();
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    let errMsg = `Error ${response.status}: ${response.statusText}`;
-                    if (errorData?.error?.message) errMsg = errorData.error.message;
-                    if (errMsg.includes("API key not valid")) errMsg = "Error: Clave API no válida.";
-                    throw new Error(errMsg);
-                }
-
+                if (!response.ok) { throw new Error(`Error de API ${response.status}`); }
                 const result = await response.json();
-
-                if (result.candidates && result.candidates[0].content?.parts?.[0]?.text) {
+                if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
                     const botResponse = result.candidates[0].content.parts[0].text;
-                    addMessage(botResponse, 'bot');
-                    chatHistory.push({ role: "model", parts: [{ text: botResponse }] });
-                    setSealState('talking');
-                    setTimeout(() => setSealState('idle'), 3000);
-                } else if (result.promptFeedback?.blockReason) {
-                    addMessage("Lo siento, no puedo responder a eso debido a políticas de contenido.", 'bot');
-                     chatHistory.push({ role: "model", parts: [{ text: "Respuesta bloqueada por seguridad." }] });
-                    setSealState('idle');
-                } else {
-                    throw new Error("No se obtuvo una respuesta clara de Foca.");
-                }
+                    addMessage(botResponse, 'bot'); chatHistory.push({ role: "model", parts: [{ text: botResponse }] });
+                    setSealState('talking'); setTimeout(() => setSealState('idle'), 3000);
+                } else { throw new Error("No se obtuvo una respuesta clara."); }
             } catch (error) {
-                console.error('Error al enviar mensaje:', error);
-                addMessage(`¡Ups! 🚨 Foca tuvo un problema: ${error.message}`, 'bot');
+                addMessage(`🚨 Foca tuvo un problema: ${error.message}`, 'bot');
                 chatHistory.push({ role: "model", parts: [{ text: `Error: ${error.message}` }] });
-                setSealState('error');
-                hideTypingIndicator();
+                setSealState('error'); hideTypingIndicator();
             } finally {
-                toggleInputDisabled(false);
-                userInput.focus();
-                if (sealElement.classList.contains('thinking') || sealElement.classList.contains('error')) {
-                    setTimeout(() => setSealState('idle'), 1500);
-                }
+                toggleInputDisabled(false); userInput.focus();
+                if (sealElement.classList.contains('thinking') || sealElement.classList.contains('error')) { setTimeout(() => setSealState('idle'), 1500); }
             }
         }
-
-        // Event listeners
         sendButton.addEventListener('click', sendMessage);
-        userInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                sendMessage();
-            }
-        });
-
-        // Estado inicial
+        userInput.addEventListener('keypress', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } });
         setSealState('idle');
         userInput.placeholder = userInputPlaceholderDefault;
-
-        // Ajustar altura del textarea dinámicamente
         userInput.addEventListener('input', () => {
-            userInput.style.height = 'auto';
-            let newHeight = userInput.scrollHeight;
-            const maxHeight = 100;
-            if (newHeight > maxHeight) {
-                newHeight = maxHeight;
-                userInput.style.overflowY = 'auto';
-            } else {
-                userInput.style.overflowY = 'hidden';
-            }
+            userInput.style.height = 'auto'; let newHeight = userInput.scrollHeight; const maxHeight = 100;
+            if (newHeight > maxHeight) { newHeight = maxHeight; userInput.style.overflowY = 'auto'; } else { userInput.style.overflowY = 'hidden'; }
             userInput.style.height = newHeight + 'px';
         });
         userInput.dispatchEvent(new Event('input'));
-        
-        // Saludo inicial con animación
-        setTimeout(() => {
-            sealElement.classList.add('animate__animated', 'animate__bounceIn');
-            setTimeout(() => {
-                sealElement.classList.remove('animate__bounceIn');
-            }, 1000);
-        }, 500);
     </script>
 </body>
 </html>
+
