@@ -390,9 +390,71 @@
             color: #1e40af;
             animation: fadeIn 0.5s ease-out;
         }
+        
+        /* Estilos para texto con asteriscos */
+        .bold-text {
+            font-weight: bold;
+            color: #1e40af;
+        }
+        
+        .italic-text {
+            font-style: italic;
+            color: #374151;
+        }
+        
+        /* Estilos para tablas */
+        .markdown-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            display: block;
+        }
+        
+        .markdown-table th, .markdown-table td {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            text-align: left;
+        }
+        
+        .markdown-table th {
+            background-color: #3b82f6;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .markdown-table tr:nth-child(even) {
+            background-color: #f3f4f6;
+        }
+        
+        .markdown-table tr:hover {
+            background-color: #e5e7eb;
+        }
+        
+        /* Efecto de onda para botones */
+        @keyframes ripple {
+            to {
+                transform: scale(20);
+                opacity: 0;
+            }
+        }
+        
+        /* Sonido al hacer clic */
+        .click-sound {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body class="flex flex-col h-screen p-2 sm:p-3">
+    <!-- Elementos de audio para efectos de sonido -->
+    <audio id="clickSound" class="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-modern-click-box-check-1120.mp3" preload="auto"></audio>
+    <audio id="sendSound" class="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3" preload="auto"></audio>
+    <audio id="correctSound" class="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" preload="auto"></audio>
+    <audio id="wrongSound" class="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" preload="auto"></audio>
+    <audio id="sealSound" class="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-creature-squeak-1011.mp3" preload="auto"></audio>
 
     <!-- Contenedor de la Foca con efecto de agua -->
     <div class="seal-container flex-shrink-0 mx-auto mb-2 w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 relative">
@@ -493,6 +555,14 @@
     </div>
 
     <script>
+        // Elementos de sonido
+        const clickSound = document.getElementById('clickSound');
+        const sendSound = document.getElementById('sendSound');
+        const correctSound = document.getElementById('correctSound');
+        const wrongSound = document.getElementById('wrongSound');
+        const sealSound = document.getElementById('sealSound');
+        
+        // Elementos de la interfaz
         const userInput = document.getElementById('userInput');
         const sendButton = document.getElementById('sendButton');
         const chatMessages = document.getElementById('chat-messages');
@@ -509,7 +579,7 @@
         let currentQuiz = null;
         let currentQuestionIndex = 0;
         let userScore = 0;
-        const NUM_QUIZ_QUESTIONS = 3; // Number of questions for the quiz
+        const NUM_QUIZ_QUESTIONS = 3; // Número de preguntas para el cuestionario
 
         // Datos curiosos sobre focas para mostrar aleatoriamente
         const sealFacts = [
@@ -525,6 +595,12 @@
             "Las focas son mamíferos y necesitan salir a la superficie para respirar."
         ];
 
+        // --- Funciones de Sonido ---
+        function playSound(soundElement) {
+            soundElement.currentTime = 0; // Rebobinar el sonido
+            soundElement.play().catch(e => console.log("No se pudo reproducir el sonido:", e));
+        }
+
         // --- Funciones de la Foca ---
         function setSealState(state) {
             sealElement.className.baseVal = '';
@@ -537,6 +613,11 @@
                 setTimeout(() => {
                     splashElement.style.display = 'none';
                 }, 1000);
+            }
+            
+            // Sonido de foca cuando habla
+            if (state === 'talking') {
+                playSound(sealSound);
             }
         }
 
@@ -551,6 +632,48 @@
                 chatMessages.appendChild(factDiv);
                 scrollToBottom();
             }
+        }
+
+        // --- Funciones de Formateo de Texto ---
+        function formatTextWithMarkdown(text) {
+            // Reemplazar **texto** con <strong>
+            text = text.replace(/\*\*(.*?)\*\*/g, '<span class="bold-text">$1</span>');
+            
+            // Reemplazar *texto* con <em>
+            text = text.replace(/\*(.*?)\*/g, '<span class="italic-text">$1</span>');
+            
+            // Formatear tablas
+            text = formatMarkdownTables(text);
+            
+            return text;
+        }
+        
+        function formatMarkdownTables(text) {
+            // Detectar tablas en formato markdown
+            const tableRegex = /(\|.*\|\n\|.*\|\n)((?:\|.*\|\n)*)/g;
+            
+            return text.replace(tableRegex, (match, headerRow, bodyRows) => {
+                // Procesar fila de encabezado
+                const headers = headerRow.split('|')
+                    .filter(cell => cell.trim() !== '')
+                    .map(cell => `<th>${cell.trim()}</th>`)
+                    .join('');
+                
+                // Procesar filas del cuerpo
+                const rows = bodyRows.split('\n')
+                    .filter(row => row.trim() !== '')
+                    .map(row => {
+                        const cells = row.split('|')
+                            .filter(cell => cell.trim() !== '')
+                            .map(cell => `<td>${cell.trim()}</td>`)
+                            .join('');
+                        return `<tr>${cells}</tr>`;
+                    })
+                    .join('');
+                
+                // Crear tabla HTML
+                return `<div style="overflow-x:auto;"><table class="markdown-table"><thead><tr>${headers}</tr></thead><tbody>${rows}</tbody></table></div>`;
+            });
         }
 
         // --- Funciones del Chat ---
@@ -568,11 +691,14 @@
                 }
             }
             
-            // Sanitize text (simple version, for complex HTML use a library)
-            const tempDiv = document.createElement('div');
-            tempDiv.textContent = text;
-            messageDiv.innerHTML = tempDiv.innerHTML.replace(/\n/g, '<br>');
-
+            // Formatear texto con markdown
+            const formattedText = formatTextWithMarkdown(text);
+            
+            // Crear elemento de contenido
+            const contentDiv = document.createElement('div');
+            contentDiv.innerHTML = formattedText.replace(/\n/g, '<br>');
+            
+            messageDiv.appendChild(contentDiv);
             chatMessages.appendChild(messageDiv);
             scrollToBottom();
             
@@ -614,6 +740,7 @@
 
         // --- Lógica del Cuestionario ---
         quizModeToggle.addEventListener('change', () => {
+            playSound(clickSound);
             isQuizModeActive = quizModeToggle.checked;
             userInput.placeholder = isQuizModeActive ? userInputPlaceholderQuiz : userInputPlaceholderDefault;
             userInput.value = '';
@@ -752,6 +879,8 @@
                 
                 // Efecto de onda al hacer clic
                 button.onclick = (e) => {
+                    playSound(clickSound);
+                    
                     // Efecto visual al hacer clic
                     const ripple = document.createElement('span');
                     ripple.className = 'absolute top-1/2 left-1/2 w-2 h-2 bg-white opacity-70 rounded-full transform -translate-x-1/2 -translate-y-1/2';
@@ -782,10 +911,12 @@
                 userScore++;
                 feedback = `✅ ¡Correcto! ${question.explanation || ''}`;
                 setSealState('happy');
+                playSound(correctSound);
             } else {
                 const correctAnswerLetter = String.fromCharCode(65 + question.correctOptionIndex);
                 feedback = `❌ Incorrecto. La respuesta correcta era ${correctAnswerLetter}. ${question.options[question.correctOptionIndex]}. \n📚 Explicación: ${question.explanation || ''}`;
                 setSealState('idle');
+                playSound(wrongSound);
             }
             addMessage(feedback, 'bot');
             
@@ -808,6 +939,7 @@
             if (scorePercentage === 100) {
                 resultMessage = `🏆 ¡Perfecto! ${userScore} de ${currentQuiz.questions.length} (${scorePercentage}%). ¡Eres increíble!`;
                 setSealState('happy');
+                playSound(correctSound);
             } else if (scorePercentage >= 70) {
                 resultMessage = `👍 ¡Buen trabajo! ${userScore} de ${currentQuiz.questions.length} (${scorePercentage}%). Casi lo logras todo.`;
                 setSealState('idle');
@@ -826,6 +958,7 @@
             restartButton.className = 'marine-button text-white font-medium py-2 px-4 rounded-lg mt-2 w-full';
             restartButton.textContent = '¿Otro cuestionario?';
             restartButton.onclick = () => {
+                playSound(clickSound);
                 quizModeToggle.checked = true;
                 isQuizModeActive = true;
                 userInput.placeholder = userInputPlaceholderQuiz;
@@ -845,6 +978,7 @@
             addMessage(messageText, 'user');
             userInput.value = '';
             userInput.style.height = 'auto';
+            playSound(sendSound);
 
             if (isQuizModeActive) {
                 chatHistory.push({ role: "user", parts: [{ text: `Solicitud de cuestionario sobre: ${messageText}` }] });
